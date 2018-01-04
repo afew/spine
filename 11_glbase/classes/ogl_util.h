@@ -211,16 +211,11 @@ public:
 
 struct GLMesh
 {
-	UINT pos, nor, tzn, tex;	// position, normal, tanzent, texture id
-	UINT idx;					// index id
+	UINT pos{}, nor{}, dif{}, tex{}, tzn{};	// position, normal, diffuse, texture id, texture id, tanzent
+	UINT idx{};								// index id
+	UINT num_ids {};						// number ids
+	UINT num_tri {};						// triangle count
 };
-
-struct GLMeshCube
-{
-	UINT pos, nor, dif, tex;	// position, normal, diffuse, texture id
-	UINT idx;					// index id
-};
-
 
 #endif
 

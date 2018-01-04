@@ -15,6 +15,7 @@
 
 #include "app_util.h"
 #include "App.h"
+#include "Sphere.h"
 #include "Spine.h"
 
 

@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\_pvr_sdk\Include;..\..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\_pvr_sdk\Include;..\..\include;..\..\41spine35\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -71,7 +71,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\_pvr_sdk\Include;..\..\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\_pvr_sdk\Include;..\..\include;..\..\41spine35\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -90,12 +90,14 @@
     <ClCompile Include="..\classes\android_util.cpp" />
     <ClCompile Include="..\classes\App.cpp" />
     <ClCompile Include="..\classes\app_util.cpp" />
+    <ClCompile Include="..\classes\Sphere.cpp" />
     <ClCompile Include="..\classes\Spine.cpp" />
     <ClCompile Include="..\classes\Gui.cpp" />
     <ClCompile Include="..\classes\ogl_util.cpp" />
     <ClCompile Include="glbaseWin32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\classes\Sphere.h" />
     <ClInclude Include="..\classes\Spine.h" />
     <ClInclude Include="..\classes\Gui.h" />
     <ClInclude Include="..\_pvr_sdk\Windows\Resources\resource.h" />
