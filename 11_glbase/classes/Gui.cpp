@@ -81,12 +81,12 @@ int Gui::Render()
 	if(!cam)
 		return -1;
 
-	LCXVEC2 src_pos[] =
+	LCXVEC3 src_pos[] =
 	{
-		LCXVEC2(  0.0F, +64.0F),
-		LCXVEC2(128.0F, +64.0F),
-		LCXVEC2(128.0F, + 0.0F),
-		LCXVEC2(  0.0F, + 0.0F),
+		LCXVEC3(-64.0F, -32.0F, 0.0F),
+		LCXVEC3(+64.0F, -32.0F, 0.0F),
+		LCXVEC3(+64.0F, +32.0F, 0.0F),
+		LCXVEC3(-64.0F, +32.0F, 0.0F),
 	};
 	COLOR4F Dif[] =
 	{
@@ -103,13 +103,13 @@ int Gui::Render()
 		LCXVEC2(0.0F, 1.0F),
 	};
 
-	LCXVEC3 Pos[4];
-	LCXMATRIX matProj = *cam->Proj();
-	for(int i=0; i<4; ++i)
-	{
-		LCXVEC3 tmp(src_pos[i].x, src_pos[i].y, 0.0F);
-		matProj.TransformCoord(&Pos[i], &tmp);
-	}
+	//LCXVEC3 Pos[4];
+	//LCXMATRIX matProj = *cam->Proj();
+	//for(int i=0; i<4; ++i)
+	//{
+	//	LCXVEC3 tmp = src_pos[i];
+	//	matProj.TransformCoord(&Pos[i], &tmp);
+	//}
 
 
 	m_prg->BeginProgram();
@@ -122,12 +122,16 @@ int Gui::Render()
 	m_prg->Texture("us_tx0", 0, m_tx0);
 	m_prg->Texture("us_tx1", 1, m_tx1);
 
+	m_prg->Matrix16("um_Prj", (GLfloat*)cam->Proj());
 
-	glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, &Pos[0]);
+
+	glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, &src_pos[0]);
 	glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, &Dif[0]);
 	glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, &Tex[0]);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(1);
 	m_prg->EndProgram();
 

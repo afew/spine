@@ -200,9 +200,11 @@ int App::Render()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	GLCamera* cam = GLCamera::globalCamera("gui");
+
 	MAT4X4 tm_wld;
-	const MAT4X4* tm_viw = m_cam_gui->View();
-	const MAT4X4* tm_prj = m_cam_gui->Proj();
+	const MAT4X4* tm_viw = cam->View();
+	const MAT4X4* tm_prj = cam->Proj();
 	m_spineSkeleton->draw(spine_prg, tm_wld, *tm_viw, *tm_prj);
 
 

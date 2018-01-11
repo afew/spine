@@ -9,5 +9,5 @@ void main() {
 
   vr_dif      = at_dif;
   vr_tx0      = at_tx0;
-  gl_Position = at_pos;
+  gl_Position = um_Prj * at_pos;;
 }

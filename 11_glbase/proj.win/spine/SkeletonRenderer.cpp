@@ -197,7 +197,7 @@ void SkeletonRenderer::update (float deltaTime) {
 	spSkeleton_update(_skeleton, deltaTime * _timeScale);
 }
 
-void SkeletonRenderer::draw (GLProgram* prog, const MAT4X4& parentWorld, const MAT4X4& view, const MAT4X4& proj) {
+void SkeletonRenderer::draw (GLProgram* prog, const MAT4X4& tmWld, const MAT4X4& tmViw, const MAT4X4& tmPrj) {
 
 	LCXCOLOR nodeColor = m_color;
 	_skeleton->r = nodeColor.r;
@@ -278,8 +278,10 @@ void SkeletonRenderer::draw (GLProgram* prog, const MAT4X4& parentWorld, const M
 		}
 
 		//glBlendEquation(GL_FUNC_ADD);
-		glDisable(GL_BLEND);
+		glEnable(GL_BLEND);
 		glBlendFunc(blendFunc.src, blendFunc.dst);
+		glDisable( GL_DEPTH_TEST);
+		glDisable( GL_CULL_FACE );
 
 		GLTexture* texture = attachmentVertices->_texture;
 		SPINE_MESH* mesh = attachmentVertices->_triangles;
@@ -292,10 +294,16 @@ void SkeletonRenderer::draw (GLProgram* prog, const MAT4X4& parentWorld, const M
 
 		prog->Texture("us_tx0", 0, texture);
 
+		prog->Matrix16("um_Wld", (GLfloat*)&tmWld);
+		prog->Matrix16("um_Viw", (GLfloat*)&tmViw);
+		prog->Matrix16("um_Prj", (GLfloat*)&tmPrj);
+
 		glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, pos);
 		glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, dif);
 		glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, tex);
+
 		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_SHORT, mesh->indices );
+
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(1);
 
