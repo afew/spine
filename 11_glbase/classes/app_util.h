@@ -93,6 +93,8 @@ public:
 	~FileData();
 	int   size() { return m_size; }
 	char* data() { return m_data; }
+
+	static int getFileDataWithMalloc(char** ret_buf, int* ret_len, const char* fileName);
 protected:
 	int   m_size;
 	char* m_data;

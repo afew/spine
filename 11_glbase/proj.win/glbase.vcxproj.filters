@@ -16,6 +16,9 @@
     <Filter Include="shader">
       <UniqueIdentifier>{27aadaae-614b-414c-a49b-0c6c5e911cea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="spine">
+      <UniqueIdentifier>{f4da6fb5-7d53-4b29-97cd-09656d97e8a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_pvr_sdk\Windows\Resources\resource.h">
@@ -33,11 +36,26 @@
     <ClInclude Include="..\classes\Gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\classes\Spine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\classes\Sphere.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spine\AttachmentVertices.h">
+      <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="spine\Cocos2dAttachmentLoader.h">
+      <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="spine\SkeletonAnimation.h">
+      <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="spine\SkeletonBatch.h">
+      <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="spine\SkeletonRenderer.h">
+      <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="spine\spine-cocos2dx.h">
+      <Filter>spine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -62,11 +80,26 @@
     <ClCompile Include="..\classes\android_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\classes\Spine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\classes\Sphere.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spine\AttachmentVertices.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="spine\Cocos2dAttachmentLoader.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="spine\SkeletonAnimation.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="spine\SkeletonBatch.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="spine\SkeletonRenderer.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="spine\spine-cocos2dx.cpp">
+      <Filter>spine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +125,12 @@
       <Filter>shader</Filter>
     </None>
     <None Include="..\media\shader\gui.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\media\shader\spine.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\media\shader\spine.vert">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

@@ -39,14 +39,14 @@ bool checkGLError(const char* functionLastCalled)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-GLTexture* GLTexture::createFromFile(const char* file_name, int type, int filterMinMag, int wrapMode)
+GLTexture* GLTexture::createFromFile(const char* file_name, int type, int filterMin, int filterMag, int wrapModeS, int wrapModeT)
 {
 	GLTexture* ret = new GLTexture;
 	int hr = -1;
 	switch(type)
 	{
-		case TYPE_2D:	hr = ret->Init2D  (file_name, type, filterMinMag, wrapMode);	break;
-		case TYPE_CUBE:	hr = ret->InitCube(file_name, type, filterMinMag, wrapMode);	break;
+		case TYPE_2D:	hr = ret->Init2D  (file_name, filterMin, filterMag, wrapModeS, wrapModeT);	break;
+		case TYPE_CUBE:	hr = ret->InitCube(file_name, filterMin, filterMag, wrapModeS, wrapModeT);	break;
 		default: break;
 	}
 	if(0>hr)
@@ -58,10 +58,12 @@ GLTexture* GLTexture::createFromFile(const char* file_name, int type, int filter
 }
 
 GLTexture::GLTexture()
-	: m_type(TYPE_2D)
-	, m_tex(0)
-	, m_filter(GL_LINEAR)
-	, m_wrap  (GL_CLAMP_TO_EDGE)
+	: m_type      {TYPE_2D}
+	, m_tex       {}
+	, m_filter_min{GL_LINEAR}
+	, m_filter_mag{GL_LINEAR}
+	, m_wrap_s    {GL_CLAMP_TO_EDGE}
+	, m_wrap_t    {GL_CLAMP_TO_EDGE}
 {
 }
 
@@ -70,7 +72,7 @@ GLTexture::~GLTexture()
 	Destroy();
 }
 
-int GLTexture::Init2D(const char* file_name, int type, int filterMinMag, int wrapMode)
+int GLTexture::Init2D(const char* file_name, int filterMin, int filterMag, int wrapModeS, int wrapModeT)
 {
 	FileData file_data(file_name);
 	if(0>=file_data.size())
@@ -94,22 +96,27 @@ int GLTexture::Init2D(const char* file_name, int type, int filterMinMag, int wra
 	glGetIntegerv  (GL_TEXTURE_BINDING_2D, &store_tex);			// get the stored texture
 
 	glBindTexture  (GL_TEXTURE_2D, m_tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMinMag);//, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMinMag);//, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);//, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);//, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);//, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMag);//, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapModeS);//, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapModeT);//, GL_CLAMP_TO_EDGE);
 	glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGBA, nImgW, nImgH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPxl);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	delete[] pPxl;
 	glBindTexture  (GL_TEXTURE_2D, store_tex);
 
-	m_type   = type;
-	m_filter = filterMinMag;
-	m_wrap   = wrapMode;
+	m_type       = TYPE_2D;
+	m_filter_min = filterMin;
+	m_filter_mag = filterMag;
+	m_wrap_s     = wrapModeS;
+	m_wrap_t     = wrapModeT;
+	m_imgW = nImgW;
+	m_imgH = nImgH;
+	m_imgD = nImgD;
 	return (int)m_tex;
 }
 
-int GLTexture::InitCube(const char* file_name, int type, int filterMinMag, int wrapMode)
+int GLTexture::InitCube(const char* file_name, int filterMin, int filterMag, int wrapModeS, int wrapModeT)
 {
 	std::vector<std::string > file_cube=
 	{
@@ -148,10 +155,11 @@ int GLTexture::InitCube(const char* file_name, int type, int filterMinMag, int w
 	glGetIntegerv  (GL_TEXTURE_BINDING_CUBE_MAP, &store_tex);	// get the stored texture
 
 	glBindTexture  (GL_TEXTURE_CUBE_MAP, m_tex);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, filterMinMag);//, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, filterMinMag);//, GL_NEAREST_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, wrapMode);//, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, wrapMode);//, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, filterMin);//, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, filterMag);//, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, wrapModeS);//, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, wrapModeT);//, GL_CLAMP_TO_EDGE);
+
 	for(size_t i=0; i<file_cube.size(); ++i)
 	{
 		int				nImgW = 0;
@@ -169,12 +177,18 @@ int GLTexture::InitCube(const char* file_name, int type, int filterMinMag, int w
 
 		glTexImage2D (GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, GL_RGBA, nImgW, nImgH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPxl);
 		delete[] pPxl;
+
+		m_imgW = nImgW;
+		m_imgH = nImgH;
+		m_imgD = nImgD;
 	}
 	glBindTexture  (GL_TEXTURE_CUBE_MAP, store_tex);
 
-	m_type   = type;
-	m_filter = filterMinMag;
-	m_wrap   = wrapMode;
+	m_type       = TYPE_CUBE;
+	m_filter_min = filterMin;
+	m_filter_mag = filterMag;
+	m_wrap_s     = wrapModeS;
+	m_wrap_t     = wrapModeT;
 	return (int)m_tex;
 }
 
@@ -187,33 +201,29 @@ void GLTexture::Destroy()
 	}
 }
 
-void GLTexture::BindStage(int stage, int filterMinMag, int wrapMode)
+void GLTexture::BindStage(int stage, int filterMin, int filterMag, int wrapModeS, int wrapModeT)
 {
-	int filter =  filterMinMag ? filterMinMag : m_filter;
-	int  wrap  =  wrapMode     ? wrapMode     : m_wrap;
+	int filter_min  =  filterMin ? filterMin : m_filter_min;
+	int filter_mag  =  filterMag ? filterMag : m_filter_mag;
+	int wrap_mode_s =  wrapModeS ? wrapModeS : m_wrap_s    ;
+	int wrap_mode_t =  wrapModeT ? wrapModeT : m_wrap_t    ;
 
 	glActiveTexture(GL_TEXTURE0 + stage);
 	//glEnable(GL_TEXTURE_2D);													W/Adreno-ES20(19516): <get_simple_queries:1544>: GL_INVALID_ENUM
 
+	GLenum target = 0;
 	switch(m_type)
 	{
-		case TYPE_2D:
-			glBindTexture  (GL_TEXTURE_2D      , m_tex);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-			break;
-		case TYPE_CUBE:
-			glBindTexture  (GL_TEXTURE_CUBE_MAP, m_tex);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, filter);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, filter);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, wrap);
-			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, wrap);
-			break;
+		case TYPE_2D:   target = GL_TEXTURE_2D; break;
+		case TYPE_CUBE: target = GL_TEXTURE_CUBE_MAP; break;
 		default: break;
 	}
 
+	glBindTexture  (target, m_tex);
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter_min);
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter_mag);
+	glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap_mode_s);
+	glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap_mode_t);
 }
 
 void GLTexture::UnBindStage(int stage)
@@ -241,10 +251,10 @@ int GLTexture::SetPixel(int w, int h, int f, int t, void* pxl)
 	int store_tex = 0;											// previous binding texture
 	glGetIntegerv  (GL_TEXTURE_BINDING_2D, &store_tex);			// get the stored texture
 	glBindTexture  (GL_TEXTURE_2D, m_tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_filter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_filter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_wrap);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_wrap);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_filter_min);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_filter_mag);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_wrap_s);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_wrap_t);
 	glTexImage2D   (GL_TEXTURE_2D, 0, f, w, h, 0, f, t, pxl);
 	glBindTexture  (GL_TEXTURE_2D, store_tex);
 	return 0;
@@ -872,11 +882,16 @@ int GLCameraGui::FrameMove()
 	FLOAT	n = +4096.0F;		// near
 	FLOAT	f = -4096.0F;		// far
 
-	mt_prj.OrthoGl(   0.000F, 2.000F*r		// Ortho Left Top
-					, 2.0F*t, 0.00000F
+	mt_prj.OrthoGl(   l, r		// Ortho Left Top
+					, b, t
 					, n, f);
 
 	b_update = false;
 	return 0;
 }
+
+const BlendFunc BlendFunc::DISABLE = {GL_ONE, GL_ZERO};
+const BlendFunc BlendFunc::ALPHA_PREMULTIPLIED = {GL_ONE, GL_ONE_MINUS_SRC_ALPHA};
+const BlendFunc BlendFunc::ALPHA_NON_PREMULTIPLIED = {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
+const BlendFunc BlendFunc::ADDITIVE = {GL_SRC_ALPHA, GL_ONE};
 

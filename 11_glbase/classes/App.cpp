@@ -19,6 +19,7 @@
 #include "Spine.h"
 
 
+
 static std::mutex g_mutex;
 
 static App* g_app = NULL;
@@ -143,10 +144,6 @@ int App::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 	if(!m_cam_gui)
 		return -1;
 
-	m_spine = new Spine;
-	if(0> m_spine->Init())
-		return -1;
-
 	m_button = Gui::createButton("media/texture/button.tga", "media/texture/white.tga");
 	if(!m_button)
 		return -1;
@@ -154,6 +151,15 @@ int App::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 	int vpt[8]={0};
 	glGetIntegerv(GL_VIEWPORT, vpt);
 	m_fbo = GLFBO::create(vpt[2], vpt[3]);
+
+	m_spineSkeleton = SkeletonAnimation::createWithJsonFile(
+		std::string("media/spine/spineboy.json"),
+		std::string("media/spine/spineboy.atlas"));
+
+	spine_prg = GLProgram::createFromFile("media/shader/spine.vert", "media/shader/spine.frag");
+	if(!spine_prg)
+		return -1;
+
 
 	return 0;
 }
@@ -163,6 +169,7 @@ int App::Destroy()
 	SAFE_DELETE(m_fbo  );
 	SAFE_DELETE(m_spine );
 	SAFE_DELETE(m_button);
+	SAFE_DELETE(spine_prg);
 
 	GLCamera::remove(&m_cam3d);
 	GLCamera::remove(&m_cam_gui);
@@ -177,7 +184,9 @@ int App::FrameMove()
 	}
 	m_cam3d->FrameMove();
 	m_button->FrameMove();
-	m_spine->FrameMove();
+
+	if(m_spineSkeleton)
+		m_spineSkeleton->update(0.1f);
 	return 0;
 }
 
@@ -191,7 +200,10 @@ int App::Render()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_spine->Render();
+	MAT4X4 tm_wld;
+	const MAT4X4* tm_viw = m_cam_gui->View();
+	const MAT4X4* tm_prj = m_cam_gui->Proj();
+	m_spineSkeleton->draw(spine_prg, tm_wld, *tm_viw, *tm_prj);
 
 
 	glClear(GL_DEPTH_BUFFER_BIT);

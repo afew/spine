@@ -9,8 +9,10 @@
 
 #if defined(_DEBUG)
   #pragma comment(lib, "lgpwn_math30_.lib")
+  #pragma comment(lib, "lgpwn_spine34_.lib")
 #else
   #pragma comment(lib, "lgpwn_math30.lib")
+  #pragma comment(lib, "lgpwn_spine34.lib")
 #endif
 
 

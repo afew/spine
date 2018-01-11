@@ -107,24 +107,24 @@ void spRegionAttachment_computeWorldVertices (spRegionAttachment* self, spBone* 
 
 	offsetX = offsets[BRX];
 	offsetY = offsets[BRY];
-	vertices[offset] = offsetX * bone->a + offsetY * bone->b + x; /* br */
+	vertices[offset + 0] = offsetX * bone->a + offsetY * bone->b + x; /* br */
 	vertices[offset + 1] = offsetX * bone->c + offsetY * bone->d + y;
 	offset += stride;
 
 	offsetX = offsets[BLX];
 	offsetY = offsets[BLY];
-	vertices[offset] = offsetX * bone->a + offsetY * bone->b + x; /* bl */
+	vertices[offset + 0] = offsetX * bone->a + offsetY * bone->b + x; /* bl */
 	vertices[offset + 1] = offsetX * bone->c + offsetY * bone->d + y;
 	offset += stride;
 
 	offsetX = offsets[ULX];
 	offsetY = offsets[ULY];
-	vertices[offset] = offsetX * bone->a + offsetY * bone->b + x; /* ul */
+	vertices[offset + 0] = offsetX * bone->a + offsetY * bone->b + x; /* ul */
 	vertices[offset + 1] = offsetX * bone->c + offsetY * bone->d + y;
 	offset += stride;
 
 	offsetX = offsets[URX];
 	offsetY = offsets[URY];
-	vertices[offset] = offsetX * bone->a + offsetY * bone->b + x; /* ur */
+	vertices[offset + 0] = offsetX * bone->a + offsetY * bone->b + x; /* ur */
 	vertices[offset + 1] = offsetX * bone->c + offsetY * bone->d + y;
 }

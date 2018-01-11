@@ -187,3 +187,42 @@ FileData::~FileData()
 }
 
 
+int FileData::getFileDataWithMalloc(char** ret_buf, int* ret_len, const char* fileName)
+{
+	if(!ret_buf || !ret_len)
+		return -1;
+	int size   = 0;
+	char* data = 0;
+#ifdef __ANDROID__
+	AAsset* asst = AAssetManager_open((AAssetManager*)getAAssetManager(), fileName, AASSET_MODE_UNKNOWN);
+	if(NULL == asst)
+		return -1;
+
+	size = (int)AAsset_getLength(asst);
+	int size_4   = int((size+7)/4) * 4;
+	data  = (char*)malloc(size_4);
+	memset(data, 0, size_4);
+	AAsset_read(asst, data, size);
+	AAsset_close(asst);
+#else
+	const char* full_path = AppResourcePath(fileName);
+	FILE* fp = fopen(full_path, "rb");
+	if(!fp)
+		return -1;
+
+	fseek(fp, 0, SEEK_END);
+	size = (int)ftell(fp);
+	if(0<size)
+	{
+		data = (char*)malloc(size+1);
+		fseek(fp, 0, SEEK_SET);
+		fread(data, 1, size, fp);
+		data[size]=0;
+	}
+	fclose(fp);
+#endif
+	*ret_len = size;
+	*ret_buf = data;
+	return 0;
+}
+

@@ -39,26 +39,34 @@ public:
 		TYPE_CUBE = 6,
 	};
 protected:
-	int m_type;
-	int m_tex;
-	int m_filter;
-	int m_wrap;
-
+	int m_type      {TYPE_2D};
+	int m_tex       {};
+	int m_filter_min{GL_LINEAR};
+	int m_filter_mag{GL_LINEAR};
+	int m_wrap_s    {GL_CLAMP_TO_EDGE};
+	int m_wrap_t    {GL_CLAMP_TO_EDGE};
+	int m_imgW      {};
+	int m_imgH      {};
+	int m_imgD      {};
 public:
-	static GLTexture* createFromFile(const char* file_name, int type=TYPE_2D, int filterMinMag = GL_LINEAR, int wrapMode = GL_CLAMP_TO_EDGE);
+	static GLTexture* createFromFile(const char* file_name, int type=TYPE_2D, int filterMin = GL_LINEAR, int filterMag = GL_LINEAR, int wrapModeS = GL_CLAMP_TO_EDGE, int wrapModeT = GL_CLAMP_TO_EDGE);
 
 public:
 	GLTexture();
 	virtual ~GLTexture();
 
-	int  Init2D(const char* file_name, int type, int filterMinMag, int wrapMode);
-	int  InitCube(const char* file_name, int type, int filterMinMag, int wrapMode);
+	int  Init2D(const char* file_name, int filterMin = GL_LINEAR, int filterMag = GL_LINEAR, int wrapModeS = GL_CLAMP_TO_EDGE, int wrapModeT = GL_CLAMP_TO_EDGE);
+	int  InitCube(const char* file_name, int filterMin = GL_LINEAR, int filterMag = GL_LINEAR, int wrapModeS = GL_CLAMP_TO_EDGE, int wrapModeT = GL_CLAMP_TO_EDGE);
 	void Destroy();
-	void BindStage   (int stage, int filterMinMag = 0, int wrapMode = 0);
+	void BindStage   (int stage, int filterMin =0, int filterMag =0, int wrapModeS =0, int wrapModeT =0);
 	void UnBindStage (int stage);
 	int  SetPixel    (int w, int h, int f, int t, void* pxl);
 	int  TexType     () const { return m_type; }
 	int  TexID       () const { return m_tex; }
+
+	int ImageW() { return m_imgW; }
+	int ImageH() { return m_imgH; }
+	int ImageD() { return m_imgD; }
 };
 
 //------------------------------------------------------------------------------
@@ -216,6 +224,50 @@ struct GLMesh
 	UINT num_ids {};						// number ids
 	UINT num_tri {};						// triangle count
 };
+
+//struct SPINE_VTX
+//{
+//	LCXVEC3		pos	{};			// vertices (3F): 12 bytes
+//	LCXCOLOR	dif	{};			// colors (4F): 16 bytes
+//	LCXVEC2		tex	{};			// tex coords (2F): 8 bytes
+//};
+
+struct SPINE_MESH
+{
+//	SPINE_VTX*	verts       {};			// Vertex data pointer
+	LCXVEC3 *	vtx_pos		{};			// vertices (3F)
+	LCXCOLOR*	vtx_dif		{};			// vertices (4F)
+	LCXVEC2 *	vtx_tex		{};			// vertices (2F)
+	USHORT  *	indices     {};			// Index data pointer
+	int			vertCount   {};			// The number of vertices
+	int			indexCount  {};			// The number of indices
+};
+
+struct BlendFunc
+{
+	UINT src;							// source blend function
+	UINT dst;							// destination blend function
+
+	BlendFunc(UINT _src=0x0302, UINT _dst=0x0303): src(_src), dst(_dst){}
+	bool operator==(const BlendFunc &a) const
+	{
+		return src == a.src && dst == a.dst;
+	}
+	bool operator!=(const BlendFunc &a) const
+	{
+		return src != a.src || dst != a.dst;
+	}
+	bool operator<(const BlendFunc &a) const
+	{
+		return src < a.src || (src == a.src && dst < a.dst);
+	}
+
+	static const BlendFunc DISABLE;					// Blending disabled. Uses {GL_ONE, GL_ZERO}
+	static const BlendFunc ALPHA_PREMULTIPLIED;		// Blending enabled for textures with Alpha premultiplied. Uses {GL_ONE, GL_ONE_MINUS_SRC_ALPHA}
+	static const BlendFunc ALPHA_NON_PREMULTIPLIED;	// Blending enabled for textures with Alpha NON premultiplied. Uses {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
+	static const BlendFunc ADDITIVE;				// Enables Additive blending. Uses {GL_SRC_ALPHA, GL_ONE}
+};
+
 
 #endif
 
