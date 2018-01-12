@@ -28,11 +28,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include "ogl_util.h"
+#include <algorithm>
 #include <spine/SkeletonAnimation.h>
 #include <spine/spine-cocos2dx.h>
 #include <spine/extension.h>
-#include <algorithm>
 
 using std::min;
 using std::max;
@@ -40,20 +39,24 @@ using std::vector;
 
 namespace spine {
 
-void animationCallback (spAnimationState* state, int trackIndex, spEventType type, spEvent* event, int loopCount) {
-	((SkeletonAnimation*)state->rendererObject)->onAnimationStateEvent(trackIndex, type, event, loopCount);
-}
-
-void trackEntryCallback (spAnimationState* state, int trackIndex, spEventType type, spEvent* event, int loopCount) {
-	((SkeletonAnimation*)state->rendererObject)->onTrackEntryEvent(trackIndex, type, event, loopCount);
-}
-
 typedef struct _TrackEntryListeners {
-	StartListener startListener;
-	EndListener endListener;
-	CompleteListener completeListener;
-	EventListener eventListener;
+    StartListener startListener;
+    InterruptListener interruptListener;
+    EndListener endListener;
+    DisposeListener disposeListener;
+    CompleteListener completeListener;
+    EventListener eventListener;
 } _TrackEntryListeners;
+
+void animationCallback (spAnimationState* state, spEventType type, spTrackEntry* entry, spEvent* event) {
+	((SkeletonAnimation*)state->rendererObject)->onAnimationStateEvent(entry, type, event);
+}
+
+void trackEntryCallback (spAnimationState* state, spEventType type, spTrackEntry* entry, spEvent* event) {
+	((SkeletonAnimation*)state->rendererObject)->onTrackEntryEvent(entry, type, event);
+    if (type == SP_ANIMATION_DISPOSE)
+        if (entry->rendererObject) delete (spine::_TrackEntryListeners*)entry->rendererObject;
+}
 
 static _TrackEntryListeners* getListeners (spTrackEntry* entry) {
 	if (!entry->rendererObject) {
@@ -61,11 +64,6 @@ static _TrackEntryListeners* getListeners (spTrackEntry* entry) {
 		entry->listener = trackEntryCallback;
 	}
 	return (_TrackEntryListeners*)entry->rendererObject;
-}
-
-void disposeTrackEntry (spTrackEntry* entry) {
-	if (entry->rendererObject) delete (spine::_TrackEntryListeners*)entry->rendererObject;
-	_spTrackEntry_dispose(entry);
 }
 
 //
@@ -112,7 +110,6 @@ void SkeletonAnimation::initialize () {
 	_state->listener = animationCallback;
 
 	_spAnimationState* stateInternal = (_spAnimationState*)_state;
-	stateInternal->disposeTrackEntry = disposeTrackEntry;
 }
 
 SkeletonAnimation::SkeletonAnimation ()
@@ -139,8 +136,8 @@ void SkeletonAnimation::setAnimationStateData (spAnimationStateData* stateData) 
 		return;
 	}
 
-	if (_ownsAnimationStateData) spAnimationStateData_dispose(_state->data);
-	spAnimationState_dispose(_state);
+    if (_ownsAnimationStateData) spAnimationStateData_dispose(_state->data);
+    spAnimationState_dispose(_state);
 
 	_ownsAnimationStateData = false;
 	_state = spAnimationState_create(stateData);
@@ -170,6 +167,18 @@ spTrackEntry* SkeletonAnimation::addAnimation (int trackIndex, const std::string
 	return spAnimationState_addAnimation(_state, trackIndex, animation, loop, delay);
 }
 
+spTrackEntry* SkeletonAnimation::setEmptyAnimation (int trackIndex, float mixDuration) {
+	return spAnimationState_setEmptyAnimation(_state, trackIndex, mixDuration);
+}
+
+void SkeletonAnimation::setEmptyAnimations (float mixDuration) {
+	spAnimationState_setEmptyAnimations(_state, mixDuration);
+}
+
+spTrackEntry* SkeletonAnimation::addEmptyAnimation (int trackIndex, float mixDuration, float delay) {
+	return spAnimationState_addEmptyAnimation(_state, trackIndex, mixDuration, delay);
+}
+
 spAnimation* SkeletonAnimation::findAnimation(const std::string& name) const {
 	return spSkeletonData_findAnimation(_skeleton->data, name.c_str());
 }
@@ -186,39 +195,50 @@ void SkeletonAnimation::clearTrack (int trackIndex) {
 	spAnimationState_clearTrack(_state, trackIndex);
 }
 
-void SkeletonAnimation::onAnimationStateEvent (int trackIndex, spEventType type, spEvent* event, int loopCount) {
+void SkeletonAnimation::onAnimationStateEvent (spTrackEntry* entry, spEventType type, spEvent* event) {
 	switch (type) {
 	case SP_ANIMATION_START:
-		if (_startListener) _startListener(trackIndex);
+		if (_startListener) _startListener(entry);
 		break;
+    case SP_ANIMATION_INTERRUPT:
+        if (_interruptListener) _interruptListener(entry);
+        break;
 	case SP_ANIMATION_END:
-		if (_endListener) _endListener(trackIndex);
+		if (_endListener) _endListener(entry);
 		break;
+    case SP_ANIMATION_DISPOSE:
+        if (_disposeListener) _disposeListener(entry);
+        break;
 	case SP_ANIMATION_COMPLETE:
-		if (_completeListener) _completeListener(trackIndex, loopCount);
+		if (_completeListener) _completeListener(entry);
 		break;
 	case SP_ANIMATION_EVENT:
-		if (_eventListener) _eventListener(trackIndex, event);
+		if (_eventListener) _eventListener(entry, event);
 		break;
 	}
 }
 
-void SkeletonAnimation::onTrackEntryEvent (int trackIndex, spEventType type, spEvent* event, int loopCount) {
-	spTrackEntry* entry = spAnimationState_getCurrent(_state, trackIndex);
+void SkeletonAnimation::onTrackEntryEvent (spTrackEntry* entry, spEventType type, spEvent* event) {
 	if (!entry->rendererObject) return;
 	_TrackEntryListeners* listeners = (_TrackEntryListeners*)entry->rendererObject;
 	switch (type) {
 	case SP_ANIMATION_START:
-		if (listeners->startListener) listeners->startListener(trackIndex);
+		if (listeners->startListener) listeners->startListener(entry);
 		break;
+    case SP_ANIMATION_INTERRUPT:
+        if (listeners->interruptListener) listeners->interruptListener(entry);
+        break;
 	case SP_ANIMATION_END:
-		if (listeners->endListener) listeners->endListener(trackIndex);
+		if (listeners->endListener) listeners->endListener(entry);
 		break;
+    case SP_ANIMATION_DISPOSE:
+        if (listeners->disposeListener) listeners->disposeListener(entry);
+        break;
 	case SP_ANIMATION_COMPLETE:
-		if (listeners->completeListener) listeners->completeListener(trackIndex, loopCount);
+		if (listeners->completeListener) listeners->completeListener(entry);
 		break;
 	case SP_ANIMATION_EVENT:
-		if (listeners->eventListener) listeners->eventListener(trackIndex, event);
+		if (listeners->eventListener) listeners->eventListener(entry, event);
 		break;
 	}
 }
@@ -227,8 +247,16 @@ void SkeletonAnimation::setStartListener (const StartListener& listener) {
 	_startListener = listener;
 }
 
+void SkeletonAnimation::setInterruptListener (const InterruptListener& listener) {
+    _interruptListener = listener;
+}
+
 void SkeletonAnimation::setEndListener (const EndListener& listener) {
 	_endListener = listener;
+}
+
+void SkeletonAnimation::setDisposeListener (const DisposeListener& listener) {
+    _disposeListener = listener;
 }
 
 void SkeletonAnimation::setCompleteListener (const CompleteListener& listener) {
@@ -243,8 +271,16 @@ void SkeletonAnimation::setTrackStartListener (spTrackEntry* entry, const StartL
 	getListeners(entry)->startListener = listener;
 }
 
+void SkeletonAnimation::setTrackInterruptListener (spTrackEntry* entry, const InterruptListener& listener) {
+    getListeners(entry)->interruptListener = listener;
+}
+
 void SkeletonAnimation::setTrackEndListener (spTrackEntry* entry, const EndListener& listener) {
 	getListeners(entry)->endListener = listener;
+}
+
+void SkeletonAnimation::setTrackDisposeListener (spTrackEntry* entry, const DisposeListener& listener) {
+    getListeners(entry)->disposeListener = listener;
 }
 
 void SkeletonAnimation::setTrackCompleteListener (spTrackEntry* entry, const CompleteListener& listener) {

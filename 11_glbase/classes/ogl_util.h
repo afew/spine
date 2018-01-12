@@ -225,24 +225,6 @@ struct GLMesh
 	UINT num_tri {};						// triangle count
 };
 
-//struct SPINE_VTX
-//{
-//	LCXVEC3		pos	{};			// vertices (3F): 12 bytes
-//	LCXCOLOR	dif	{};			// colors (4F): 16 bytes
-//	LCXVEC2		tex	{};			// tex coords (2F): 8 bytes
-//};
-
-struct SPINE_MESH
-{
-//	SPINE_VTX*	verts       {};			// Vertex data pointer
-	LCXVEC3 *	vtx_pos		{};			// vertices (3F)
-	LCXCOLOR*	vtx_dif		{};			// vertices (4F)
-	LCXVEC2 *	vtx_tex		{};			// vertices (2F)
-	USHORT  *	indices     {};			// Index data pointer
-	int			vertCount   {};			// The number of vertices
-	int			indexCount  {};			// The number of indices
-};
-
 struct BlendFunc
 {
 	UINT src;							// source blend function

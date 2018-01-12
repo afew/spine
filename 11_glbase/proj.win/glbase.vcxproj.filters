@@ -48,9 +48,6 @@
     <ClInclude Include="spine\SkeletonAnimation.h">
       <Filter>spine</Filter>
     </ClInclude>
-    <ClInclude Include="spine\SkeletonBatch.h">
-      <Filter>spine</Filter>
-    </ClInclude>
     <ClInclude Include="spine\SkeletonRenderer.h">
       <Filter>spine</Filter>
     </ClInclude>
@@ -90,9 +87,6 @@
       <Filter>spine</Filter>
     </ClCompile>
     <ClCompile Include="spine\SkeletonAnimation.cpp">
-      <Filter>spine</Filter>
-    </ClCompile>
-    <ClCompile Include="spine\SkeletonBatch.cpp">
       <Filter>spine</Filter>
     </ClCompile>
     <ClCompile Include="spine\SkeletonRenderer.cpp">

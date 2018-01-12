@@ -156,6 +156,8 @@ int App::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 		std::string("media/spine/spineboy.json"),
 		std::string("media/spine/spineboy.atlas"));
 
+	m_spineSkeleton->setAnimation(0, "walk", true);
+
 	spine_prg = GLProgram::createFromFile("media/shader/spine.vert", "media/shader/spine.frag");
 	if(!spine_prg)
 		return -1;
@@ -186,7 +188,7 @@ int App::FrameMove()
 	m_button->FrameMove();
 
 	if(m_spineSkeleton)
-		m_spineSkeleton->update(0.1f);
+		m_spineSkeleton->update(0.02f);
 	return 0;
 }
 

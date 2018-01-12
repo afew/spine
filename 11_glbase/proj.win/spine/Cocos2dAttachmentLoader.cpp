@@ -28,7 +28,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include "ogl_util.h"
 #include <spine/Cocos2dAttachmentLoader.h>
 #include <spine/extension.h>
 #include <spine/AttachmentVertices.h>
@@ -51,10 +50,10 @@ void _Cocos2dAttachmentLoader_configureAttachment (spAttachmentLoader* loader, s
 		spRegionAttachment* regionAttachment = SUB_CAST(spRegionAttachment, attachment);
 		spAtlasRegion* region = (spAtlasRegion*)regionAttachment->rendererObject;
 		AttachmentVertices* attachmentVertices = new AttachmentVertices((GLTexture*)region->page->rendererObject, 4, quadTriangles, 6);
-		LCXVEC2* vtx_tex = attachmentVertices->_triangles->vtx_tex;
+		SPINE_VTX* vertices = attachmentVertices->_mesh.vtx;
 		for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
-			vtx_tex[i].x = regionAttachment->uvs[ii + 0];
-			vtx_tex[i].y = regionAttachment->uvs[ii + 1];
+			vertices[i].tex.x = regionAttachment->uvs[ii + 0];
+			vertices[i].tex.y = regionAttachment->uvs[ii + 1];
 		}
 		regionAttachment->rendererObject = attachmentVertices;
 		break;
@@ -64,11 +63,10 @@ void _Cocos2dAttachmentLoader_configureAttachment (spAttachmentLoader* loader, s
 		spAtlasRegion* region = (spAtlasRegion*)meshAttachment->rendererObject;
 		AttachmentVertices* attachmentVertices = new AttachmentVertices((GLTexture*)region->page->rendererObject,
 			meshAttachment->super.worldVerticesLength >> 1, meshAttachment->triangles, meshAttachment->trianglesCount);
-
-		LCXVEC2* vtx_tex = attachmentVertices->_triangles->vtx_tex;
+		SPINE_VTX* vertices = attachmentVertices->_mesh.vtx;
 		for (int i = 0, ii = 0, nn = meshAttachment->super.worldVerticesLength; ii < nn; ++i, ii += 2) {
-			vtx_tex[i].x = meshAttachment->uvs[ii + 0];
-			vtx_tex[i].y = meshAttachment->uvs[ii + 1];
+			vertices[i].tex.x = meshAttachment->uvs[ii + 0];
+			vertices[i].tex.y = meshAttachment->uvs[ii + 1];
 		}
 		meshAttachment->rendererObject = attachmentVertices;
 		break;

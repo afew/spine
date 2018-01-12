@@ -31,6 +31,22 @@
 #ifndef SPINE_ATTACHMENTVERTICES_H_
 #define SPINE_ATTACHMENTVERTICES_H_
 
+#include "ogl_util.h"
+
+struct SPINE_VTX
+{
+	LCXVEC3		pos;	// position
+	LCXCOLOR	dif;	// diffuse
+	LCXVEC2		tex;	// texture coordinate
+};
+struct SPINE_MESH
+{
+	SPINE_VTX*		vtx;
+	unsigned short* idx;
+	int vertCount;
+	int indexCount;
+};
+
 namespace spine {
 
 class AttachmentVertices {
@@ -38,8 +54,8 @@ public:
 	AttachmentVertices (GLTexture* texture, int verticesCount, unsigned short* triangles, int trianglesCount);
 	virtual ~AttachmentVertices ();
 
-	GLTexture* _texture;
-	SPINE_MESH* _triangles;
+	GLTexture* _texture{};
+	SPINE_MESH _mesh  {};
 };
 
 }

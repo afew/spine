@@ -9,10 +9,10 @@
 
 #if defined(_DEBUG)
   #pragma comment(lib, "lgpwn_math30_.lib")
-  #pragma comment(lib, "lgpwn_spine34_.lib")
+  #pragma comment(lib, "lgpwn_spine_.lib")
 #else
   #pragma comment(lib, "lgpwn_math30.lib")
-  #pragma comment(lib, "lgpwn_spine34.lib")
+  #pragma comment(lib, "lgpwn_spine.lib")
 #endif
 
 

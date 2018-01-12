@@ -31,7 +31,7 @@
 #ifndef SPINE_SKELETONRENDERER_H_
 #define SPINE_SKELETONRENDERER_H_
 
-#include <string>
+#include "ogl_util.h"
 #include <spine/spine.h>
 
 namespace spine {
@@ -46,10 +46,12 @@ public:
 	static SkeletonRenderer* createWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale = 1);
 	static SkeletonRenderer* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
 
-	virtual void update (float deltaTime) ;
-	virtual void draw (GLProgram* prog, const MAT4X4& parentWorld, const MAT4X4& view, const MAT4X4& proj ) ;
-    virtual void drawDebug ();
-	virtual LCXRECT getBoundingBox () ;
+	virtual void update (float deltaTime);
+	virtual void draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4X4& viw, const LCXMAT4X4& prj);
+    virtual void drawDebug (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4X4& viw, const LCXMAT4X4& prj);
+	virtual LCXRECT getBoundingBox () const;
+	//virtual void onEnter () override;
+	//virtual void onExit () override;
 
 	spSkeleton* getSkeleton();
 
@@ -91,10 +93,10 @@ public:
 	bool setAttachment (const std::string& slotName, const char* attachmentName);
 
     // --- BlendProtocol
-    virtual void setBlendFunc (const BlendFunc& blendFunc) ;
-    virtual const BlendFunc& getBlendFunc () const ;
-    virtual void setOpacityModifyRGB (bool value) ;
-    virtual bool isOpacityModifyRGB () const ;
+    virtual void setBlendFunc (const BlendFunc& blendFunc);
+    virtual const BlendFunc& getBlendFunc () const;
+    virtual void setOpacityModifyRGB (bool value);
+    virtual bool isOpacityModifyRGB () const;
 
 public:
 	SkeletonRenderer ();
@@ -120,15 +122,13 @@ protected:
 	bool _ownsSkeletonData;
 	spAtlas* _atlas;
 	spAttachmentLoader* _attachmentLoader;
-	BlendFunc _blendFunc;
+	BlendFunc _blendFunc {0x0302, 0x0303};
 
 #if defined(WIN32)
-  // warning disable
   #pragma warning(push)
   #pragma warning(disable : 4251)
 #endif
 	std::vector<float> _worldVertices;
-
 #if defined(WIN32)
   #pragma warning(pop)
 #endif
@@ -143,8 +143,6 @@ protected:
 	bool		m_use_two_color {false};
 	LCXVEC3		m_pos{0,0,0};
 	LCXVEC3		m_scl{1,1,1};
-public: enum { INITIAL_WORLD_VRTEX_SIZE = 2 * 4 * 16, };	// 2-dimensional * 4 verticies for one rectangle * 16(default)
-
 public:
 	const LCXVEC3 getPosition() const { return m_pos; }
 	const LCXVEC3 getScale() const { return m_scl; }

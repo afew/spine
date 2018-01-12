@@ -28,21 +28,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include <spine/AttachmentVertices.h>
+#include <spine/BoneData.h>
+#include <spine/extension.h>
 
-namespace spine {
-
-AttachmentVertices::AttachmentVertices (GLTexture* texture, int verticesCount, unsigned short* triangles, int trianglesCount) {
-	_texture = texture;
-
-	_mesh.vtx = new SPINE_VTX[verticesCount]{};
-	_mesh.vertCount = verticesCount;
-	_mesh.idx = triangles;
-	_mesh.indexCount = trianglesCount;
+spBoneData* spBoneData_create (int index, const char* name, spBoneData* parent) {
+	spBoneData* self = NEW(spBoneData);
+	CONST_CAST(int, self->index) = index;
+	MALLOC_STR(self->name, name);
+	CONST_CAST(spBoneData*, self->parent) = parent;
+	self->scaleX = 1;
+	self->scaleY = 1;
+	self->transformMode = SP_TRANSFORMMODE_NORMAL;
+	return self;
 }
 
-AttachmentVertices::~AttachmentVertices () {
-	delete [] _mesh.vtx;
-}
-
+void spBoneData_dispose (spBoneData* self) {
+	FREE(self->name);
+	FREE(self);
 }

@@ -28,21 +28,59 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include <spine/AttachmentVertices.h>
+#ifndef SPINE_IKCONSTRAINT_H_
+#define SPINE_IKCONSTRAINT_H_
 
-namespace spine {
+#include <spine/IkConstraintData.h>
+#include <spine/Bone.h>
 
-AttachmentVertices::AttachmentVertices (GLTexture* texture, int verticesCount, unsigned short* triangles, int trianglesCount) {
-	_texture = texture;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	_mesh.vtx = new SPINE_VTX[verticesCount]{};
-	_mesh.vertCount = verticesCount;
-	_mesh.idx = triangles;
-	_mesh.indexCount = trianglesCount;
+struct spSkeleton;
+
+typedef struct spIkConstraint {
+	spIkConstraintData* const data;
+
+	int bonesCount;
+	spBone** bones;
+
+	spBone* target;
+	int bendDirection;
+	float mix;
+
+#ifdef __cplusplus
+	spIkConstraint() :
+		data(0),
+		bonesCount(0),
+		bones(0),
+		target(0),
+		bendDirection(0),
+		mix(0) {
+	}
+#endif
+} spIkConstraint;
+
+spIkConstraint* spIkConstraint_create (spIkConstraintData* data, const struct spSkeleton* skeleton);
+void spIkConstraint_dispose (spIkConstraint* self);
+
+void spIkConstraint_apply (spIkConstraint* self);
+
+void spIkConstraint_apply1 (spBone* bone, float targetX, float targetY, float alpha);
+void spIkConstraint_apply2 (spBone* parent, spBone* child, float targetX, float targetY, int bendDirection, float alpha);
+
+#ifdef SPINE_SHORT_NAMES
+typedef spIkConstraint IkConstraint;
+#define IkConstraint_create(...) spIkConstraint_create(__VA_ARGS__)
+#define IkConstraint_dispose(...) spIkConstraint_dispose(__VA_ARGS__)
+#define IkConstraint_apply(...) spIkConstraint_apply(__VA_ARGS__)
+#define IkConstraint_apply1(...) spIkConstraint_apply1(__VA_ARGS__)
+#define IkConstraint_apply2(...) spIkConstraint_apply2(__VA_ARGS__)
+#endif
+
+#ifdef __cplusplus
 }
+#endif
 
-AttachmentVertices::~AttachmentVertices () {
-	delete [] _mesh.vtx;
-}
-
-}
+#endif /* SPINE_IKCONSTRAINT_H_ */

@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\_pvr_sdk\Include;..\..\include;..\..\41spine34\include;.\;..\classes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\_pvr_sdk\Include;..\..\include;..\..\41spine3_5_35\include;.\;..\classes</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -71,7 +71,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\_pvr_sdk\Include;..\..\include;..\..\41spine34\include;.\;..\classes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\_pvr_sdk\Include;..\..\include;..\..\41spine3_5_35\include;.\;..\classes</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -97,7 +97,6 @@
     <ClCompile Include="spine\AttachmentVertices.cpp" />
     <ClCompile Include="spine\Cocos2dAttachmentLoader.cpp" />
     <ClCompile Include="spine\SkeletonAnimation.cpp" />
-    <ClCompile Include="spine\SkeletonBatch.cpp" />
     <ClCompile Include="spine\SkeletonRenderer.cpp" />
     <ClCompile Include="spine\spine-cocos2dx.cpp" />
   </ItemGroup>
@@ -111,7 +110,6 @@
     <ClInclude Include="spine\AttachmentVertices.h" />
     <ClInclude Include="spine\Cocos2dAttachmentLoader.h" />
     <ClInclude Include="spine\SkeletonAnimation.h" />
-    <ClInclude Include="spine\SkeletonBatch.h" />
     <ClInclude Include="spine\SkeletonRenderer.h" />
     <ClInclude Include="spine\spine-cocos2dx.h" />
   </ItemGroup>

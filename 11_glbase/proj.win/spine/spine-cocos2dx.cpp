@@ -30,14 +30,12 @@
 
 #include "ogl_util.h"
 #include "app_util.h"
-
 #if defined(__APPLE__)
   #define GL_GLEXT_PROTOTYPES
   #import <OpenGLES/ES2/glext.h>
 #else
   #include <GLES2/gl2.h>
 #endif
-
 #include <spine/spine-cocos2dx.h>
 #include <spine/extension.h>
 
@@ -69,20 +67,19 @@ GLuint filter (spAtlasFilter filter) {
 
 void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
 	GLTexture* texture = GLTexture::createFromFile(path, GLTexture::TYPE_2D, filter(self->minFilter), filter(self->magFilter), wrap(self->uWrap), wrap(self->vWrap));
-	if(!texture) {
-		//!= nullptr, "Invalid image");
+	if(!texture)
 		return;
-	}
 
 	self->rendererObject = texture;
-	self->width = texture->ImageW();
+	self->width  = texture->ImageW();
 	self->height = texture->ImageH();
 }
 
 void _spAtlasPage_disposeTexture (spAtlasPage* self) {
-	GLTexture* tex = (GLTexture*)(self->rendererObject);
-	if(tex) {
-		delete tex;
+	GLTexture* texture = (GLTexture*)(self->rendererObject);
+	if(texture)
+	{
+		delete texture;
 		self->rendererObject = NULL;
 	}
 }
@@ -93,6 +90,7 @@ char* _spUtil_readFile (const char* path, int* length) {
 	int   ret = FileData::getFileDataWithMalloc(&ret_buf, &ret_len, path);
 	if(0>ret)
 		return NULL;
+
 	*length = ret_len;
 	return ret_buf;
 }

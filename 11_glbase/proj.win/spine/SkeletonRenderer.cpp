@@ -28,19 +28,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include "ogl_util.h"
 #include <algorithm>
-
 #if defined(__APPLE__)
   #define GL_GLEXT_PROTOTYPES
   #import <OpenGLES/ES2/glext.h>
 #else
   #include <GLES2/gl2.h>
 #endif
-
 #include <spine/SkeletonRenderer.h>
 #include <spine/extension.h>
-#include <spine/SkeletonBatch.h>
 #include <spine/AttachmentVertices.h>
 #include <spine/Cocos2dAttachmentLoader.h>
 
@@ -65,10 +61,22 @@ SkeletonRenderer* SkeletonRenderer::createWithFile (const std::string& skeletonD
 }
 
 void SkeletonRenderer::initialize () {
-	_worldVertices.resize(INITIAL_WORLD_VRTEX_SIZE); // Max number of vertices per mesh.
 
-	_blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
 	setOpacityModifyRGB(true);
+
+	_worldVertices.resize(_skeleton->slotsCount * 2 * 4);
+	int new_size = (int)_worldVertices.size();
+	for (int i = 0, n = _skeleton->slotsCount; i < n; ++i) {
+		spSlot* slot = _skeleton->drawOrder[i];
+		if(!slot->attachment || SP_ATTACHMENT_MESH != slot->attachment->type)
+			continue;
+
+		spMeshAttachment* attachment = (spMeshAttachment*)slot->attachment;
+		int worldVerticesLength = attachment->super.worldVerticesLength;
+		if(new_size < worldVerticesLength)
+			new_size = worldVerticesLength;
+	}
+	_worldVertices.resize(new_size);
 }
 
 void SkeletonRenderer::setSkeletonData (spSkeletonData *skeletonData, bool ownsSkeletonData) {
@@ -117,7 +125,7 @@ void SkeletonRenderer::initWithJsonFile (const std::string& skeletonDataFile, sp
 	json->scale = scale;
 	spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, skeletonDataFile.c_str());
 	if(!skeletonData) {
-		//json->error ? json->error : "Error reading skeleton data.");
+		//, json->error ? json->error : "Error reading skeleton data.");
 		return;
 	}
 	spSkeletonJson_dispose(json);
@@ -143,7 +151,6 @@ void SkeletonRenderer::initWithJsonFile (const std::string& skeletonDataFile, co
 		//, json->error ? json->error : "Error reading skeleton data file.");
 		return;
 	}
-
 	spSkeletonJson_dispose(json);
 
 	setSkeletonData(skeletonData, true);
@@ -197,7 +204,14 @@ void SkeletonRenderer::update (float deltaTime) {
 	spSkeleton_update(_skeleton, deltaTime * _timeScale);
 }
 
-void SkeletonRenderer::draw (GLProgram* prog, const MAT4X4& tmWld, const MAT4X4& tmViw, const MAT4X4& tmPrj) {
+void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4X4& viw, const LCXMAT4X4& prj) {
+	int stored_blend_src = 0;
+	int stored_blend_dst = 0;
+	int stored_blend_use = 0;
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, &stored_blend_src);
+	glGetIntegerv(GL_BLEND_DST_ALPHA, &stored_blend_dst);
+	stored_blend_use = (int)glIsEnabled(GL_BLEND);
+	glEnable(GL_BLEND);
 
 	LCXCOLOR nodeColor = m_color;
 	_skeleton->r = nodeColor.r;
@@ -224,9 +238,6 @@ void SkeletonRenderer::draw (GLProgram* prog, const MAT4X4& tmWld, const MAT4X4&
 		}
 		case SP_ATTACHMENT_MESH: {
 			spMeshAttachment* attachment = (spMeshAttachment*)slot->attachment;
-			int worldVerticesLength = attachment->super.worldVerticesLength;
-			if((int)_worldVertices.size() <worldVerticesLength)
-				_worldVertices.resize(worldVerticesLength);
 			spMeshAttachment_computeWorldVertices(attachment, slot, _worldVertices.data());
 			attachmentVertices = getAttachmentVertices(attachment);
             color.r = attachment->r;
@@ -246,16 +257,11 @@ void SkeletonRenderer::draw (GLProgram* prog, const MAT4X4& tmWld, const MAT4X4&
 		color.b *= _skeleton->b * slot->b * multiplier;
 
 
-
-		for (int v = 0, w = 0, vn = attachmentVertices->_triangles->vertCount; v < vn; ++v, w += 2) {
-			LCXVEC3 * pos = attachmentVertices->_triangles->vtx_pos + v;
-			LCXCOLOR* dif = attachmentVertices->_triangles->vtx_dif + v;
-			pos->x = _worldVertices[w + 0];
-			pos->y = _worldVertices[w + 1];
-            dif->r = color.r;
-            dif->g = color.g;
-            dif->b = color.b;
-            dif->a = color.a;
+		for (int v = 0, w = 0, vn = attachmentVertices->_mesh.vertCount; v < vn; ++v, w += 2) {
+			SPINE_VTX& vertex = attachmentVertices->_mesh.vtx[v];
+			vertex.pos.x = _worldVertices[w + 0];
+			vertex.pos.y = _worldVertices[w + 1];
+			vertex.dif = color;
 		}
 
 		BlendFunc blendFunc;
@@ -277,87 +283,78 @@ void SkeletonRenderer::draw (GLProgram* prog, const MAT4X4& tmWld, const MAT4X4&
 			blendFunc.dst = GL_ONE_MINUS_SRC_ALPHA;
 		}
 
-		//glBlendEquation(GL_FUNC_ADD);
-		glEnable(GL_BLEND);
 		glBlendFunc(blendFunc.src, blendFunc.dst);
-		glDisable( GL_DEPTH_TEST);
-		glDisable( GL_CULL_FACE );
-
+		prg->BeginProgram();
 		GLTexture* texture = attachmentVertices->_texture;
-		SPINE_MESH* mesh = attachmentVertices->_triangles;
+		const SPINE_MESH& mesh = attachmentVertices->_mesh;
+		prg->Texture("us_tx0", 0, texture);
+		
+		prg->Matrix16("um_Wld", (float*)&wld);
+		prg->Matrix16("um_Viw", (float*)&viw);
+		prg->Matrix16("um_Prj", (float*)&prj);
 
-		LCXVEC3*  pos = mesh->vtx_pos;
-		LCXCOLOR* dif = mesh->vtx_dif;
-		LCXVEC2*  tex = mesh->vtx_tex;
 
-		prog->BeginProgram();
+		int size_stride = sizeof(SPINE_VTX);
+		void* vertices  = &mesh.vtx->pos.x;
+		void* colors    = &mesh.vtx->dif.r;
+		void* texCoords = &mesh.vtx->tex.x;
+		glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size_stride, &mesh.vtx->pos.x);
+		glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, size_stride, &mesh.vtx->dif.r);
+		glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, size_stride, &mesh.vtx->tex.x);
 
-		prog->Texture("us_tx0", 0, texture);
-
-		prog->Matrix16("um_Wld", (GLfloat*)&tmWld);
-		prog->Matrix16("um_Viw", (GLfloat*)&tmViw);
-		prog->Matrix16("um_Prj", (GLfloat*)&tmPrj);
-
-		glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, pos);
-		glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, dif);
-		glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, tex);
-
-		glDrawElements(GL_TRIANGLES, mesh->indexCount, GL_UNSIGNED_SHORT, mesh->indices );
-
+		glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, mesh.idx);
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(1);
-
-		prog->EndProgram();
+		prg->EndProgram();
 	}
 
+	glBlendFunc(stored_blend_src, stored_blend_dst);
+	if(!stored_blend_use)
+		glDisable(GL_BLEND);
+
 	if (_debugSlots || _debugBones) {
-        drawDebug();
+        drawDebug(prg, wld, viw, prj);
 	}
 }
 
-void SkeletonRenderer::drawDebug () {
+void SkeletonRenderer::drawDebug (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4X4& viw, const LCXMAT4X4& prj) {
 
-/*
-    DrawNode* drawNode = DrawNode::create();
+    //if (_debugSlots) {
+    //    // Slots.
+    //    // DrawPrimitives::setDrawColor4B(0, 0, 255, 255);
+    //    glLineWidth(1);
+    //    Vec2 points[4];
+    //    V3F_C4B_T2F_Quad quad;
+    //    for (int i = 0, n = _skeleton->slotsCount; i < n; i++) {
+    //        spSlot* slot = _skeleton->drawOrder[i];
+    //        if (!slot->attachment || slot->attachment->type != SP_ATTACHMENT_REGION) continue;
+    //        spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
+    //        spRegionAttachment_computeWorldVertices(attachment, slot->bone, _worldVertices);
+    //        points[0] = Vec2(_worldVertices[0], _worldVertices[1]);
+    //        points[1] = Vec2(_worldVertices[2], _worldVertices[3]);
+    //        points[2] = Vec2(_worldVertices[4], _worldVertices[5]);
+    //        points[3] = Vec2(_worldVertices[6], _worldVertices[7]);
+    //        drawNode->drawPoly(points, 4, true, LCXCOLOR::BLUE);
+    //    }
+    //}
+    //if (_debugBones) {
+    //    // Bone lengths.
+    //    glLineWidth(2);
+    //    for (int i = 0, n = _skeleton->bonesCount; i < n; i++) {
+    //        spBone *bone = _skeleton->bones[i];
+    //        float x = bone->data->length * bone->a + bone->worldX;
+    //        float y = bone->data->length * bone->c + bone->worldY;
+    //        drawNode->drawLine(Vec2(bone->worldX, bone->worldY), Vec2(x, y), LCXCOLOR::RED);
+    //    }
+    //    // Bone origins.
+    //    auto color = LCXCOLOR::BLUE; // Root bone is blue.
+    //    for (int i = 0, n = _skeleton->bonesCount; i < n; i++) {
+    //        spBone *bone = _skeleton->bones[i];
+    //        drawNode->drawPoint(Vec2(bone->worldX, bone->worldY), 4, color);
+    //        if (i == 0) color = LCXCOLOR::GREEN;
+    //    }
+    //}
 
-    if (_debugSlots) {
-        // Slots.
-        // DrawPrimitives::setDrawColor4B(0, 0, 255, 255);
-        glLineWidth(1);
-        Vec2 points[4];
-        V3F_C4B_T2F_Quad quad;
-        for (int i = 0, n = _skeleton->slotsCount; i < n; i++) {
-            spSlot* slot = _skeleton->drawOrder[i];
-            if (!slot->attachment || slot->attachment->type != SP_ATTACHMENT_REGION) continue;
-            spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
-            spRegionAttachment_computeWorldVertices(attachment, slot->bone, _worldVertices);
-            points[0] = Vec2(_worldVertices[0], _worldVertices[1]);
-            points[1] = Vec2(_worldVertices[2], _worldVertices[3]);
-            points[2] = Vec2(_worldVertices[4], _worldVertices[5]);
-            points[3] = Vec2(_worldVertices[6], _worldVertices[7]);
-            drawNode->drawPoly(points, 4, true, LCXCOLOR::BLUE);
-        }
-    }
-    if (_debugBones) {
-        // Bone lengths.
-        glLineWidth(2);
-        for (int i = 0, n = _skeleton->bonesCount; i < n; i++) {
-            spBone *bone = _skeleton->bones[i];
-            float x = bone->data->length * bone->a + bone->worldX;
-            float y = bone->data->length * bone->c + bone->worldY;
-            drawNode->drawLine(Vec2(bone->worldX, bone->worldY), Vec2(x, y), LCXCOLOR::RED);
-        }
-        // Bone origins.
-        auto color = LCXCOLOR::BLUE; // Root bone is blue.
-        for (int i = 0, n = _skeleton->bonesCount; i < n; i++) {
-            spBone *bone = _skeleton->bones[i];
-            drawNode->drawPoint(Vec2(bone->worldX, bone->worldY), 4, color);
-            if (i == 0) color = LCXCOLOR::GREEN;
-        }
-    }
-
-    drawNode->draw();
-	*/
 }
 
 AttachmentVertices* SkeletonRenderer::getAttachmentVertices (spRegionAttachment* attachment) const {
@@ -368,38 +365,38 @@ AttachmentVertices* SkeletonRenderer::getAttachmentVertices (spMeshAttachment* a
 	return (AttachmentVertices*)attachment->rendererObject;
 }
 
-LCXRECT SkeletonRenderer::getBoundingBox () {
+LCXRECT SkeletonRenderer::getBoundingBox () const {
+
+	std::vector<float> tmp_worldVertices;
+	tmp_worldVertices.resize(_worldVertices.size());
+
 	float minX = FLT_MAX, minY = FLT_MAX, maxX = -FLT_MAX, maxY = -FLT_MAX;
-	float scaleX = getScale().x, scaleY = getScale().y;
+	float scaleX = m_scl.x, scaleY = m_scl.y;
 	for (int i = 0; i < _skeleton->slotsCount; ++i) {
 		spSlot* slot = _skeleton->slots[i];
 		if (!slot->attachment) continue;
 		int verticesCount;
 		if (slot->attachment->type == SP_ATTACHMENT_REGION) {
 			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
-			spRegionAttachment_computeWorldVertices(attachment, slot->bone, _worldVertices.data());
+			spRegionAttachment_computeWorldVertices(attachment, slot->bone, tmp_worldVertices.data());
 			verticesCount = 8;
 		} else if (slot->attachment->type == SP_ATTACHMENT_MESH) {
 			spMeshAttachment* mesh = (spMeshAttachment*)slot->attachment;
-			int worldVerticesLength = mesh->super.worldVerticesLength;
-			if((int)_worldVertices.size() <worldVerticesLength)
-				_worldVertices.resize(worldVerticesLength);
-
-			spMeshAttachment_computeWorldVertices(mesh, slot, _worldVertices.data());
+			spMeshAttachment_computeWorldVertices(mesh, slot, tmp_worldVertices.data());
 			verticesCount = mesh->super.worldVerticesLength;
 		} else
 			continue;
 		for (int ii = 0; ii < verticesCount; ii += 2) {
-			float x = _worldVertices[ii] * scaleX, y = _worldVertices[ii + 1] * scaleY;
+			float x = tmp_worldVertices[ii] * scaleX, y = tmp_worldVertices[ii + 1] * scaleY;
 			minX = min(minX, x);
 			minY = min(minY, y);
 			maxX = max(maxX, x);
 			maxY = max(maxY, y);
 		}
 	}
-	LCXVEC3 position = getPosition();
-    if (minX == FLT_MAX) minX = minY = maxX = maxY = 0;
-	return LCXRECT(position.x + minX, position.y + minY, maxX - minX, maxY - minY);
+
+	if (minX == FLT_MAX) minX = minY = maxX = maxY = 0;
+	return LCXRECT(m_pos.x + minX, m_pos.y + minY, maxX - minX, maxY - minY);
 }
 
 // --- Convenience methods for Skeleton_* functions.
@@ -468,6 +465,21 @@ bool SkeletonRenderer::getDebugBonesEnabled () const {
 	return _debugBones;
 }
 
+//void SkeletonRenderer::onEnter () {
+//#if CC_ENABLE_SCRIPT_BINDING
+//	if (_scriptType == kScriptTypeJavascript && ScriptEngineManager::sendNodeEventToJSExtended(this, kNodeOnEnter)) return;
+//#endif
+//	Node::onEnter();
+//	scheduleUpdate();
+//}
+//
+//void SkeletonRenderer::onExit () {
+//#if CC_ENABLE_SCRIPT_BINDING
+//	if (_scriptType == kScriptTypeJavascript && ScriptEngineManager::sendNodeEventToJSExtended(this, kNodeOnExit)) return;
+//#endif
+//	Node::onExit();
+//	unscheduleUpdate();
+//}
 
 // --- CCBlendProtocol
 
