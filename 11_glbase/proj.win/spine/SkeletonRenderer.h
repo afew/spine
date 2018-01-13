@@ -139,7 +139,7 @@ protected:
 	bool _debugSlots;
 	bool _debugBones;
 
-	LCXCOLOR	m_color {LCXCOLOR::WHITE};
+	COLORF4	m_color {COLORF4::WHITE};
 	bool		m_use_two_color {false};
 	LCXVEC3		m_pos{0,0,0};
 	LCXVEC3		m_scl{1,1,1};

@@ -216,13 +216,13 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 	glEnable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
-	LCXCOLOR nodeColor = m_color;
+	COLORF4 nodeColor = m_color;
 	_skeleton->r = nodeColor.r;
 	_skeleton->g = nodeColor.g;
 	_skeleton->b = nodeColor.b;
 	_skeleton->a = nodeColor.a;
 
-    LCXCOLOR color;
+    COLORF4 color;
 	AttachmentVertices* attachmentVertices = nullptr;
 	for (int i = 0, n = _skeleton->slotsCount; i < n; ++i) {
 		spSlot* slot = _skeleton->drawOrder[i];
@@ -260,8 +260,8 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 		color.b *= _skeleton->b * slot->b * multiplier;
 
 
-		for (int v = 0, w = 0, vn = attachmentVertices->_mesh.vertCount; v < vn; ++v, w += 2) {
-			SPINE_VTX& vertex = attachmentVertices->_mesh.vtx[v];
+		for (int v = 0, w = 0, vn = attachmentVertices->_mesh.n_vtx; v < vn; ++v, w += 2) {
+			VTX_PD2T& vertex = attachmentVertices->_mesh.vtx[v];
 			vertex.pos.x = _worldVertices[w + 0];
 			vertex.pos.y = _worldVertices[w + 1];
 			vertex.dif = color;
@@ -289,7 +289,7 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 		glBlendFunc(blendFunc.src, blendFunc.dst);
 		prg->BeginProgram();
 		GLTexture* texture = attachmentVertices->_texture;
-		const SPINE_MESH& mesh = attachmentVertices->_mesh;
+		const MESH_BUF2D& mesh = attachmentVertices->_mesh;
 		prg->Texture("us_tx0", 0, texture);
 		
 		prg->Matrix16("um_Wld", (float*)&wld);
@@ -297,7 +297,7 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 		prg->Matrix16("um_Prj", (float*)&prj);
 
 
-		int size_stride = sizeof(SPINE_VTX);
+		int size_stride = sizeof(VTX_PD2T);
 		void* vertices  = &mesh.vtx->pos.x;
 		void* colors    = &mesh.vtx->dif.r;
 		void* texCoords = &mesh.vtx->tex.x;
@@ -305,7 +305,7 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 		glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, size_stride, &mesh.vtx->dif.r);
 		glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, size_stride, &mesh.vtx->tex.x);
 
-		glDrawElements(GL_TRIANGLES, mesh.indexCount, GL_UNSIGNED_SHORT, mesh.idx);
+		glDrawElements(GL_TRIANGLES, mesh.n_idx, GL_UNSIGNED_SHORT, mesh.idx);
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(1);
 		prg->EndProgram();
@@ -340,7 +340,7 @@ void SkeletonRenderer::drawDebug (GLProgram* prg, const LCXMAT4X4& wld, const LC
     //        points[1] = Vec2(_worldVertices[2], _worldVertices[3]);
     //        points[2] = Vec2(_worldVertices[4], _worldVertices[5]);
     //        points[3] = Vec2(_worldVertices[6], _worldVertices[7]);
-    //        drawNode->drawPoly(points, 4, true, LCXCOLOR::BLUE);
+    //        drawNode->drawPoly(points, 4, true, COLORF4::BLUE);
     //    }
     //}
     //if (_debugBones) {
@@ -350,14 +350,14 @@ void SkeletonRenderer::drawDebug (GLProgram* prg, const LCXMAT4X4& wld, const LC
     //        spBone *bone = _skeleton->bones[i];
     //        float x = bone->data->length * bone->a + bone->worldX;
     //        float y = bone->data->length * bone->c + bone->worldY;
-    //        drawNode->drawLine(Vec2(bone->worldX, bone->worldY), Vec2(x, y), LCXCOLOR::RED);
+    //        drawNode->drawLine(Vec2(bone->worldX, bone->worldY), Vec2(x, y), COLORF4::RED);
     //    }
     //    // Bone origins.
-    //    auto color = LCXCOLOR::BLUE; // Root bone is blue.
+    //    auto color = COLORF4::BLUE; // Root bone is blue.
     //    for (int i = 0, n = _skeleton->bonesCount; i < n; i++) {
     //        spBone *bone = _skeleton->bones[i];
     //        drawNode->drawPoint(Vec2(bone->worldX, bone->worldY), 4, color);
-    //        if (i == 0) color = LCXCOLOR::GREEN;
+    //        if (i == 0) color = COLORF4::GREEN;
     //    }
     //}
 

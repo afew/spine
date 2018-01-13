@@ -63,13 +63,13 @@ int Sphere::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 
 			sphere_pos[index] = LCXVEC3(x0, y0, z0);
 			sphere_nor[index] = sphere_pos[index];
-			sphere_dif[index] = LCXCOLOR(1.0F, 1.0F, 1.0F, y0);
+			sphere_dif[index] = COLORF4(1.0F, 1.0F, 1.0F, y0);
 			sphere_tex[index] = LCXVEC2(phi/float(iNSphereSegments+.0F), 1.0F-(theta +0.0F)/iNSphereSegments);
 			++index;
 
 			sphere_pos[index] = LCXVEC3(x1, y1, z1);
 			sphere_nor[index] = sphere_pos[index];
-			sphere_dif[index] = LCXCOLOR(1.0F, 1.0F, 1.0F, y1);
+			sphere_dif[index] = COLORF4(1.0F, 1.0F, 1.0F, y1);
 			sphere_tex[index] = LCXVEC2(phi/float(iNSphereSegments+.0F), 1.0F-(theta +1.0F)/iNSphereSegments);
 			++index;
 		}
@@ -139,7 +139,7 @@ int	Sphere::Render()
 
 	m_prg->BeginProgram();
 
-	LCXCOLOR color{1.0F, 1.0F, 1.0F, 1.0F};
+	COLORF4 color{1.0F, 1.0F, 1.0F, 1.0F};
 	m_prg->Color4("uc_dif", (float*)&color);
 	m_prg->Texture("us_tx0", 0, m_tex);
 

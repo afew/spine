@@ -671,6 +671,17 @@ void LCX_AABC::Line(VEC3* pvcLine)
 	}
 }
 
+INT LCX_AABC::operator==(const LCX_AABC& v) const
+{
+	return (vcO == v.vcO && vcL == v.vcL)? LC_TRUE:LC_FALSE;
+}
+
+INT LCX_AABC::operator!=(const LCX_AABC& v) const
+{
+	return (vcO != v.vcO || vcL != v.vcL)? LC_TRUE:LC_FALSE;
+}
+
+
 
 
 

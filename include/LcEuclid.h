@@ -670,6 +670,42 @@ INT   LcMath_CylinderToTri		( VEC3* Out										// 원통과 삼각형의 충�
 								, const VEC3* pTriNormal= NULL);				// 삼각형의 Normal Vector
 
 
+
+
+//++5++++1+++++++++2+++++++++3+++++++++4+++++++++5+++++++++6+++++++++7+++++++++8
+// Simple Mesh
+
+struct VTX_PDT
+{
+	LCXVEC3		pos{};		// position
+	COLOR32		dif{};		// diffuse
+	LCXVEC2		tex{};		// texture coordinate
+};
+
+struct VTX_PNDT
+{
+	LCXVEC3		pos{};		// position
+	LCXVEC3		nor{};		// normal
+	COLOR32		dif{};		// diffuse
+	LCXVEC2		tex{};		// texture coordinate
+};
+
+struct VTX_PD2T
+{
+	LCXVEC3		pos{};		// position
+	COLORF4		dif{};		// diffuse
+	LCXVEC2		tex{};		// texture coordinate
+};
+
+struct MESH_BUF2D
+{
+	VTX_PD2T*	vtx{};		// triangles
+	USHORT*		idx{};		// indices
+	INT			n_vtx{};	// number triangles
+	INT			n_idx{};	// number indices
+};
+
+
 #endif
 
 

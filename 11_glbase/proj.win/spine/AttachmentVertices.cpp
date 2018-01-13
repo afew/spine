@@ -35,10 +35,10 @@ namespace spine {
 AttachmentVertices::AttachmentVertices (GLTexture* texture, int verticesCount, unsigned short* triangles, int trianglesCount) {
 	_texture = texture;
 
-	_mesh.vtx = new SPINE_VTX[verticesCount]{};
-	_mesh.vertCount = verticesCount;
-	_mesh.idx = triangles;
-	_mesh.indexCount = trianglesCount;
+	_mesh.vtx   = new VTX_PD2T[verticesCount]{};
+	_mesh.n_vtx = verticesCount;
+	_mesh.idx   = triangles;
+	_mesh.n_idx = trianglesCount;
 }
 
 AttachmentVertices::~AttachmentVertices () {

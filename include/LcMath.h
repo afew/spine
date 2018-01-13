@@ -264,7 +264,6 @@ struct LCXVEC3s : public LC_SHORT3
 
 
 struct LCXCOLOR;
-
 struct LCXCOLORB : public LC_COLORB												// Colors Byte(RGBA). color range [0, 255]. default color r = 255, g = 255, b = 255, a = 255
 {
 	LCXCOLORB();
@@ -307,14 +306,16 @@ struct LCXCOLORB : public LC_COLORB												// Colors Byte(RGBA). color range
 	INT operator == (const LCXCOLORB&) const	;
 	INT operator != (const LCXCOLORB&) const	;
 };
-
+typedef LCXCOLORB	COLORB4;
 
 #if defined(_PC_WINDOW_)
   #pragma pack(push, 1)
 #endif
 
-struct LCXCOLORB3 : public LC_COLORB3											// Colors Byte(RGB). color range [0, 255]. default color r = 255, g = 255, b = 255
+struct LCXCOLORB3																// Colors Byte(RGB). color range [0, 255]. default color r = 255, g = 255, b = 255
 {
+	union{ struct{ BYTE r, g, b; };	BYTE m[3];	};								// caution the byte order
+
 	LCXCOLORB3();
 	LCXCOLORB3(BYTE R,BYTE G,BYTE B);
 
@@ -365,6 +366,7 @@ struct LCXCOLORB3 : public LC_COLORB3											// Colors Byte(RGB). color range
   __attribute__((packed))
 #endif
 ;
+typedef LCXCOLORB3	COLORB3;
 
 
 #if defined(_PC_WINDOW_)
@@ -409,8 +411,8 @@ struct LCXCOLORW4
   __attribute__((packed))
 #endif
 ;
+typedef LCXCOLORW4	COLORW4;
 
-typedef LCXCOLOR	COLOR4F;
 
 
 
@@ -626,8 +628,6 @@ struct LCXVECTOR2 : public LC_FLOAT2
 };
 typedef LCXVECTOR2	LCXVEC2;
 typedef LCXVECTOR2	VEC2;
-typedef LCXVECTOR2	SIZE2F;
-typedef LCXVECTOR2	POINT2F;
 
 
 // vector3 x=0, y=0, z=0
@@ -708,8 +708,6 @@ struct LCXVECTOR3 : public LC_FLOAT3
 };
 typedef LCXVECTOR3	LCXVEC3;
 typedef LCXVECTOR3	VEC3;
-typedef LCXVECTOR3	SIZE3F;
-typedef LCXVECTOR3	POINT3F;
 
 
 // vector4 x=0, y=0, z=0, w=0
@@ -776,8 +774,6 @@ struct LCXVECTOR4 : public LC_FLOAT4
 };
 typedef LCXVECTOR4	LCXVEC4;
 typedef LCXVECTOR4	VEC4;
-typedef LCXVECTOR4	SIZE4F;
-typedef LCXVECTOR4	POINT4F;
 
 
 
@@ -1023,8 +1019,7 @@ struct LCXCOLOR : LC_COLORF
 	static const LCXCOLOR	PURPLE ;
 	static const LCXCOLOR	VIOLET ;
 };
-typedef LCXCOLOR COLOR4F;
-
+typedef LCXCOLOR	COLORF4;
 
 
 //++5++++1+++++++++2+++++++++3+++++++++4+++++++++5+++++++++6+++++++++7+++++++++8
