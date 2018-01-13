@@ -208,10 +208,13 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 	int stored_blend_src = 0;
 	int stored_blend_dst = 0;
 	int stored_blend_use = 0;
+	int stored_depth_test= 0;
 	glGetIntegerv(GL_BLEND_SRC_ALPHA, &stored_blend_src);
 	glGetIntegerv(GL_BLEND_DST_ALPHA, &stored_blend_dst);
 	stored_blend_use = (int)glIsEnabled(GL_BLEND);
+	stored_depth_test= (int)glIsEnabled(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
 
 	LCXCOLOR nodeColor = m_color;
 	_skeleton->r = nodeColor.r;
@@ -311,6 +314,9 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 	glBlendFunc(stored_blend_src, stored_blend_dst);
 	if(!stored_blend_use)
 		glDisable(GL_BLEND);
+
+	if(stored_depth_test)
+		glEnable(GL_DEPTH_TEST);
 
 	if (_debugSlots || _debugBones) {
         drawDebug(prg, wld, viw, prj);

@@ -10,9 +10,13 @@
 #if defined(_DEBUG)
   #pragma comment(lib, "lgpwn_math30_.lib")
   #pragma comment(lib, "lgpwn_spine_.lib")
+  #pragma comment(lib, "libpng16_.lib")
+  #pragma comment(lib, "zlib_.lib")
 #else
   #pragma comment(lib, "lgpwn_math30.lib")
   #pragma comment(lib, "lgpwn_spine.lib")
+  #pragma comment(lib, "libpng16.lib")
+  #pragma comment(lib, "zlib.lib")
 #endif
 
 

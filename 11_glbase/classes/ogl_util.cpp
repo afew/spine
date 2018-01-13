@@ -84,7 +84,14 @@ int GLTexture::Init2D(const char* file_name, int filterMin, int filterMag, int w
 	int				nImgD = 0;
 	unsigned char*	pPxl  = NULL;
 
-	int hr = LoadTGA(&nImgW, &nImgH, &nImgD, &pPxl, file_data.data(), file_data.size());
+	std::string ext = FileData::fileExtension(file_name);
+
+	int hr = -1;
+	if     (0 == ext.compare("tga"))
+		hr = LoadTGA(&nImgW, &nImgH, &nImgD, &pPxl, file_data.data(), file_data.size());
+	else if(0 == ext.compare("png"))
+		hr = LoadPNG(&nImgW, &nImgH, &nImgD, &pPxl, file_data.data(), file_data.size());
+
 	if(0>hr)
 		return -1;
 
@@ -100,7 +107,15 @@ int GLTexture::Init2D(const char* file_name, int filterMin, int filterMag, int w
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMag);//, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapModeS);//, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapModeT);//, GL_CLAMP_TO_EDGE);
-	glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGBA, nImgW, nImgH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPxl);
+
+	if(4 ==nImgD)
+	{
+		glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGBA, nImgW, nImgH, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPxl);
+	}
+	else
+	{
+		glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGB, nImgW, nImgH, 0, GL_RGB, GL_UNSIGNED_BYTE, pPxl);
+	}
 	glGenerateMipmap(GL_TEXTURE_2D);
 	delete[] pPxl;
 	glBindTexture  (GL_TEXTURE_2D, store_tex);

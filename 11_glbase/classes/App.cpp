@@ -205,6 +205,9 @@ int App::Render()
 	GLCamera* cam = GLCamera::globalCamera("gui");
 
 	MAT4X4 tm_wld;
+	tm_wld.Scaling(0.5F, 0.5F, 1.0F);
+	tm_wld._41 = -300;
+	tm_wld._42 = -300;
 	const MAT4X4* tm_viw = cam->View();
 	const MAT4X4* tm_prj = cam->Proj();
 	m_spineSkeleton->draw(spine_prg, tm_wld, *tm_viw, *tm_prj);

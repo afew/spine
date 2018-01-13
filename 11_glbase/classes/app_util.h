@@ -79,13 +79,6 @@ enum
 	NSDK_ERR_PROC                           =  0xEE000000,		// error process
 };
 
-extern const char* AppResourcePath(const char* fileName);
-extern const char *GetBundleFileName ( const char *fileName );
-extern void WinErrorMessageBox(const char* functionLastCalled, int errorCode);
-extern bool checkGLError(const char* functionLastCalled);
-extern int LoadTGA(int* oW, int* oH, int* oD, unsigned char** oB, const char* _src_buf, const size_t size);
-extern int LoadRAW(int* oW, int* oH, int* oD, unsigned char** oB, const char *sFile);
-
 class FileData
 {
 public:
@@ -95,10 +88,20 @@ public:
 	char* data() { return m_data; }
 
 	static int getFileDataWithMalloc(char** ret_buf, int* ret_len, const char* fileName);
+	static std::string fileExtension(const char* path);
 protected:
 	int   m_size;
 	char* m_data;
 };
+
+extern const char* AppResourcePath(const char* fileName);
+extern const char *GetBundleFileName ( const char *fileName );
+extern void WinErrorMessageBox(const char* functionLastCalled, int errorCode);
+extern bool checkGLError(const char* functionLastCalled);
+extern int LoadTGA(int* oW, int* oH, int* oD, unsigned char** oB, const char* _src_buf, const size_t size);
+extern int LoadRAW(int* oW, int* oH, int* oD, unsigned char** oB, const char *sFile);
+
+extern int LoadPNG(int* oW, int* oH, int* oD, unsigned char** oB, const char* _src_buf, const size_t size);
 
 #endif
 

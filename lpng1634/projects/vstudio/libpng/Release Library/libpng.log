@@ -1,0 +1,51 @@
+﻿Build started 2018-01-13 오전 4:12:24.
+     1>Project "E:\_document\GitHub\spine\lpng1634\projects\vstudio\libpng\libpng.vcxproj" on node 2 (Rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Release Library\libpng.tlog\libpng.lastbuildstate".
+       InitializeBuildStatus:
+         Creating "Release Library\libpng.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"..\..\..\..\zlib-1.2.11" /ID:\_dxsdk2010jun\Include /I"C:\Program Files\Microsoft SDKs\Windows\v7.1\Samples\multimedia\directshow\baseclasses" /IE:/_document/_Afew_work/glc314\include /Zi /nologo /Wall /WX /Ox /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /fp:except- /Zc:wchar_t- /Zc:forScope /Yc"pngpriv.h" /Fp"Release Library\libpng16.pch" /Fo"Release Library\\" /Fd"Release Library\vc120.pdb" /FR"Release Library\\" /Gd /TC /wd4255 /wd4668 /wd4710 /wd4711 /wd4746 /wd4820 /wd4996 /analyze- /errorReport:prompt ..\..\..\png.c
+         png.c
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"..\..\..\..\zlib-1.2.11" /ID:\_dxsdk2010jun\Include /I"C:\Program Files\Microsoft SDKs\Windows\v7.1\Samples\multimedia\directshow\baseclasses" /IE:/_document/_Afew_work/glc314\include /Zi /nologo /Wall /WX /Ox /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /fp:except- /Zc:wchar_t- /Zc:forScope /Yu"pngpriv.h" /Fp"Release Library\libpng16.pch" /Fo"Release Library\\" /Fd"Release Library\vc120.pdb" /FR"Release Library\\" /Gd /TC /wd4255 /wd4668 /wd4710 /wd4711 /wd4746 /wd4820 /wd4996 /analyze- /errorReport:prompt ..\..\..\pngerror.c ..\..\..\pngget.c ..\..\..\pngmem.c ..\..\..\pngpread.c ..\..\..\pngread.c ..\..\..\pngrio.c ..\..\..\pngrtran.c ..\..\..\pngrutil.c ..\..\..\pngset.c ..\..\..\pngtrans.c ..\..\..\pngwio.c ..\..\..\pngwrite.c ..\..\..\pngwtran.c ..\..\..\pngwutil.c
+         pngerror.c
+         pngget.c
+         pngmem.c
+         pngpread.c
+         pngread.c
+         pngrio.c
+         pngrtran.c
+         pngrutil.c
+         pngset.c
+         pngtrans.c
+         pngwio.c
+         pngwrite.c
+         pngwtran.c
+         pngwutil.c
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\Lib.exe /OUT:"E:\_document\GitHub\spine\lpng1634\projects\vstudio\Release Library\libpng16.lib" /NOLOGO /LTCG "Release Library\png.obj"
+         "Release Library\pngerror.obj"
+         "Release Library\pngget.obj"
+         "Release Library\pngmem.obj"
+         "Release Library\pngpread.obj"
+         "Release Library\pngread.obj"
+         "Release Library\pngrio.obj"
+         "Release Library\pngrtran.obj"
+         "Release Library\pngrutil.obj"
+         "Release Library\pngset.obj"
+         "Release Library\pngtrans.obj"
+         "Release Library\pngwio.obj"
+         "Release Library\pngwrite.obj"
+         "Release Library\pngwtran.obj"
+         "Release Library\pngwutil.obj"
+         libpng.vcxproj -> E:\_document\GitHub\spine\lpng1634\projects\vstudio\Release Library\libpng16.lib
+       BscMake:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\bscmake.exe /nologo /o"E:\_document\GitHub\spine\lpng1634\projects\vstudio\Release Library\libpng16.bsc" "Release Library\png.sbr" "Release Library\pngerror.sbr" "Release Library\pngget.sbr" "Release Library\pngmem.sbr" "Release Library\pngpread.sbr" "Release Library\pngread.sbr" "Release Library\pngrio.sbr" "Release Library\pngrtran.sbr" "Release Library\pngrutil.sbr" "Release Library\pngset.sbr" "Release Library\pngtrans.sbr" "Release Library\pngwio.sbr" "Release Library\pngwrite.sbr" "Release Library\pngwtran.sbr" "Release Library\pngwutil.sbr"
+       FinalizeBuildStatus:
+         Deleting file "Release Library\libpng.tlog\unsuccessfulbuild".
+         Touching "Release Library\libpng.tlog\libpng.lastbuildstate".
+     1>Done Building Project "E:\_document\GitHub\spine\lpng1634\projects\vstudio\libpng\libpng.vcxproj" (Rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:06.85
