@@ -38,11 +38,11 @@ namespace spine {
 
 class AttachmentVertices {
 public:
-	AttachmentVertices (GLTexture* texture, int verticesCount, unsigned short* triangles, int trianglesCount);
+	AttachmentVertices (void* texture, int verticesCount, unsigned short* triangles, int trianglesCount);
 	virtual ~AttachmentVertices ();
 
-	GLTexture* _texture{};
-	MESH_BUF2D _mesh  {};
+	void*      _texture{};
+	MESH_BUF2D _mesh   {};
 };
 
 }

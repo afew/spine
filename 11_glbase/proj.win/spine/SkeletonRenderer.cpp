@@ -288,7 +288,7 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 
 		glBlendFunc(blendFunc.src, blendFunc.dst);
 		prg->BeginProgram();
-		GLTexture* texture = attachmentVertices->_texture;
+		GLTexture* texture = (GLTexture*)attachmentVertices->_texture;
 		const MESH_BUF2D& mesh = attachmentVertices->_mesh;
 		prg->Texture("us_tx0", 0, texture);
 		

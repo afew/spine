@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glbase", "glbase.vcxproj", "{9DAFEE32-19F6-4410-AA09-2B564FB86F62}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "41spine3_5_35", "..\..\41spine3_5_35\41spine3_5_35.vcxproj", "{3029322B-3B7C-41FC-BA2E-384C7F01B7DE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "41spine3_5_51", "..\..\41spine3_5_51\41spine3_5_51.vcxproj", "{3029322B-3B7C-41FC-BA2E-384C7F01B7DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
