@@ -93,6 +93,7 @@
     <ClCompile Include="..\classes\Sphere.cpp" />
     <ClCompile Include="..\classes\Gui.cpp" />
     <ClCompile Include="..\classes\ogl_util.cpp" />
+    <ClCompile Include="..\classes\Spine.cpp" />
     <ClCompile Include="glbaseWin32.cpp" />
     <ClCompile Include="spine\AttachmentVertices.cpp" />
     <ClCompile Include="spine\Cocos2dAttachmentLoader.cpp" />
@@ -103,6 +104,7 @@
   <ItemGroup>
     <ClInclude Include="..\classes\Sphere.h" />
     <ClInclude Include="..\classes\Gui.h" />
+    <ClInclude Include="..\classes\Spine.h" />
     <ClInclude Include="..\_pvr_sdk\Windows\Resources\resource.h" />
     <ClInclude Include="..\classes\App.h" />
     <ClInclude Include="..\classes\app_util.h" />
