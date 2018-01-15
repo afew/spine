@@ -28,12 +28,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifndef SPINE_COCOS2DX_H_
-#define SPINE_COCOS2DX_H_
+#include "AttachmentVertices.h"
 
-#include <spine/spine.h>
-#include <spine/Cocos2dAttachmentLoader.h>
-#include <spine/SkeletonRenderer.h>
-#include <spine/SkeletonAnimation.h>
+namespace spine {
 
-#endif /* SPINE_COCOS2DX_H_ */
+AttachmentVertices::AttachmentVertices (void* texture, int verticesCount, unsigned short* triangles, int trianglesCount) {
+	_texture    = texture;
+	_mesh.vtx   = new SPINE_VTX[verticesCount]{};
+	_mesh.n_vtx = verticesCount;
+	_mesh.idx   = triangles;
+	_mesh.n_idx = trianglesCount;
+}
+
+AttachmentVertices::~AttachmentVertices () {
+	delete [] _mesh.vtx;
+}
+
+}

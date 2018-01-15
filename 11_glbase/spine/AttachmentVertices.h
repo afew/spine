@@ -28,20 +28,37 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include <spine/AttachmentVertices.h>
+#ifndef SPINE_ATTACHMENTVERTICES_H_
+#define SPINE_ATTACHMENTVERTICES_H_
+
+#include <LcEuclid.h>
 
 namespace spine {
 
-AttachmentVertices::AttachmentVertices (void* texture, int verticesCount, unsigned short* triangles, int trianglesCount) {
-	_texture    = texture;
-	_mesh.vtx   = new VTX_PD2T[verticesCount]{};
-	_mesh.n_vtx = verticesCount;
-	_mesh.idx   = triangles;
-	_mesh.n_idx = trianglesCount;
+struct SPINE_VTX
+{
+	LCXVEC3		pos{};		// position
+	COLORF4		dif{};		// diffuse
+	LCXVEC2		tex{};		// texture coordinate
+};
+
+struct SPINE_MESH
+{
+	SPINE_VTX*	vtx{};		// triangles
+	USHORT*		idx{};		// indices
+	INT			n_vtx{};	// number triangles
+	INT			n_idx{};	// number indices
+};
+
+class AttachmentVertices {
+public:
+	AttachmentVertices (void* texture, int verticesCount, unsigned short* triangles, int trianglesCount);
+	virtual ~AttachmentVertices ();
+
+	void*      _texture{};
+	SPINE_MESH _mesh   {};
+};
+
 }
 
-AttachmentVertices::~AttachmentVertices () {
-	delete [] _mesh.vtx;
-}
-
-}
+#endif /* SPINE_ATTACHMENTVERTICES_H_ */

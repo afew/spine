@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -19,43 +11,44 @@
     <Filter Include="spine">
       <UniqueIdentifier>{f4da6fb5-7d53-4b29-97cd-09656d97e8a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="classes">
+      <UniqueIdentifier>{4fba6811-a518-4d68-a32e-fa15a3b2c0fe}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;inl;inc;cpp;c;cc;cxx;def;</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\_pvr_sdk\Windows\Resources\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\classes\App.h">
-      <Filter>Header Files</Filter>
+      <Filter>classes</Filter>
     </ClInclude>
     <ClInclude Include="..\classes\app_util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\classes\ogl_util.h">
-      <Filter>Header Files</Filter>
+      <Filter>classes</Filter>
     </ClInclude>
     <ClInclude Include="..\classes\Gui.h">
-      <Filter>Header Files</Filter>
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\classes\ogl_util.h">
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_pvr_sdk\Windows\Resources\resource.h">
+      <Filter>classes</Filter>
     </ClInclude>
     <ClInclude Include="..\classes\Sphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="spine\AttachmentVertices.h">
-      <Filter>spine</Filter>
-    </ClInclude>
-    <ClInclude Include="spine\Cocos2dAttachmentLoader.h">
-      <Filter>spine</Filter>
-    </ClInclude>
-    <ClInclude Include="spine\SkeletonAnimation.h">
-      <Filter>spine</Filter>
-    </ClInclude>
-    <ClInclude Include="spine\SkeletonRenderer.h">
-      <Filter>spine</Filter>
-    </ClInclude>
-    <ClInclude Include="spine\spine-cocos2dx.h">
-      <Filter>spine</Filter>
+      <Filter>classes</Filter>
     </ClInclude>
     <ClInclude Include="..\classes\Spine.h">
-      <Filter>Header Files</Filter>
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\spine\AttachmentVertices.h">
+      <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\spine\Cocos2dAttachmentLoader.h">
+      <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\spine\SkeletonAnimation.h">
+      <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\spine\SkeletonRenderer.h">
+      <Filter>spine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -64,42 +57,42 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="glbaseWin32.cpp" />
+    <ClCompile Include="..\classes\android_util.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
     <ClCompile Include="..\classes\App.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>classes</Filter>
     </ClCompile>
     <ClCompile Include="..\classes\app_util.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\classes\Gui.cpp">
+      <Filter>classes</Filter>
     </ClCompile>
     <ClCompile Include="..\classes\ogl_util.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="glbaseWin32.cpp" />
-    <ClCompile Include="..\classes\Gui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\classes\android_util.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>classes</Filter>
     </ClCompile>
     <ClCompile Include="..\classes\Sphere.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="spine\AttachmentVertices.cpp">
-      <Filter>spine</Filter>
-    </ClCompile>
-    <ClCompile Include="spine\Cocos2dAttachmentLoader.cpp">
-      <Filter>spine</Filter>
-    </ClCompile>
-    <ClCompile Include="spine\SkeletonAnimation.cpp">
-      <Filter>spine</Filter>
-    </ClCompile>
-    <ClCompile Include="spine\SkeletonRenderer.cpp">
-      <Filter>spine</Filter>
-    </ClCompile>
-    <ClCompile Include="spine\spine-cocos2dx.cpp">
-      <Filter>spine</Filter>
+      <Filter>classes</Filter>
     </ClCompile>
     <ClCompile Include="..\classes\Spine.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\spine\AttachmentVertices.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\spine\Cocos2dAttachmentLoader.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\spine\SkeletonAnimation.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\spine\SkeletonRenderer.cpp">
+      <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\spine\spine-cocos2dx.cpp">
+      <Filter>spine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

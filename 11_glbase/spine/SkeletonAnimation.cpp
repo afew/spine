@@ -29,9 +29,8 @@
  *****************************************************************************/
 
 #include <algorithm>
-#include <spine/SkeletonAnimation.h>
-#include <spine/spine-cocos2dx.h>
 #include <spine/extension.h>
+#include "SkeletonAnimation.h"
 
 using std::min;
 using std::max;

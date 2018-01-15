@@ -17,7 +17,7 @@
 
 
 #define SPINE_SHORT_NAMES
-#include <spine/SkeletonAnimation.h>
+#include "SkeletonAnimation.h"
 using namespace spine;
 
 Spine* Spine::create(const char* skel, const char* atlas)
@@ -95,7 +95,7 @@ int	Spine::Render()
 	const MAT4X4* tm_prj = cam->Proj();
 	SkeletonAnimation* spineSkeleton = (SkeletonAnimation*)m_spineSkeleton;
 	if(spineSkeleton)
-		spineSkeleton->draw(spine_prg, tm_wld, *tm_viw, *tm_prj);
+		spineSkeleton->draw();
 
 	return LC_OK;
 }

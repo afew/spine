@@ -47,8 +47,8 @@ public:
 	static SkeletonRenderer* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
 
 	virtual void update (float deltaTime);
-	virtual void draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4X4& viw, const LCXMAT4X4& prj);
-    virtual void drawDebug (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4X4& viw, const LCXMAT4X4& prj);
+	virtual void draw (void);
+    virtual void drawDebug (void);
 	virtual LCXRECT getBoundingBox () const;
 	//virtual void onEnter () override;
 	//virtual void onExit () override;

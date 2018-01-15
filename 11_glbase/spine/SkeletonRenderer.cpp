@@ -35,13 +35,20 @@
 #else
   #include <GLES2/gl2.h>
 #endif
-#include <spine/SkeletonRenderer.h>
 #include <spine/extension.h>
-#include <spine/AttachmentVertices.h>
-#include <spine/Cocos2dAttachmentLoader.h>
+#include "SkeletonRenderer.h"
+#include "AttachmentVertices.h"
+#include "Cocos2dAttachmentLoader.h"
 
 using std::min;
 using std::max;
+
+extern void spUtil_drawPrimitive(
+	void* _texture,
+	float* vertices, float* colors, float* texCoords, int stride,
+	unsigned short* idx, int idx_count
+	);
+
 
 namespace spine {
 
@@ -204,7 +211,7 @@ void SkeletonRenderer::update (float deltaTime) {
 	spSkeleton_update(_skeleton, deltaTime * _timeScale);
 }
 
-void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4X4& viw, const LCXMAT4X4& prj) {
+void SkeletonRenderer::draw (void) {
 	int stored_blend_src = 0;
 	int stored_blend_dst = 0;
 	int stored_blend_use = 0;
@@ -261,7 +268,7 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 
 
 		for (int v = 0, w = 0, vn = attachmentVertices->_mesh.n_vtx; v < vn; ++v, w += 2) {
-			VTX_PD2T& vertex = attachmentVertices->_mesh.vtx[v];
+			SPINE_VTX& vertex = attachmentVertices->_mesh.vtx[v];
 			vertex.pos.x = _worldVertices[w + 0];
 			vertex.pos.y = _worldVertices[w + 1];
 			vertex.dif = color;
@@ -287,43 +294,27 @@ void SkeletonRenderer::draw (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4
 		}
 
 		glBlendFunc(blendFunc.src, blendFunc.dst);
-		prg->BeginProgram();
-		GLTexture* texture = (GLTexture*)attachmentVertices->_texture;
-		const MESH_BUF2D& mesh = attachmentVertices->_mesh;
-		prg->Texture("us_tx0", 0, texture);
-		
-		prg->Matrix16("um_Wld", (float*)&wld);
-		prg->Matrix16("um_Viw", (float*)&viw);
-		prg->Matrix16("um_Prj", (float*)&prj);
 
-
-		int size_stride = sizeof(VTX_PD2T);
-		void* vertices  = &mesh.vtx->pos.x;
-		void* colors    = &mesh.vtx->dif.r;
-		void* texCoords = &mesh.vtx->tex.x;
-		glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, size_stride, &mesh.vtx->pos.x);
-		glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, size_stride, &mesh.vtx->dif.r);
-		glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, size_stride, &mesh.vtx->tex.x);
-
-		glDrawElements(GL_TRIANGLES, mesh.n_idx, GL_UNSIGNED_SHORT, mesh.idx);
-		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(1);
-		prg->EndProgram();
+		const SPINE_MESH& mesh = attachmentVertices->_mesh;
+		float* vertices  = &mesh.vtx->pos.x;
+		float* colors    = &mesh.vtx->dif.r;
+		float* texCoords = &mesh.vtx->tex.x;
+		int size_stride = sizeof(SPINE_VTX);
+		::spUtil_drawPrimitive(attachmentVertices->_texture, vertices, colors, texCoords, size_stride, mesh.idx, mesh.n_idx);
 	}
 
 	glBlendFunc(stored_blend_src, stored_blend_dst);
 	if(!stored_blend_use)
 		glDisable(GL_BLEND);
 
+	if (_debugSlots || _debugBones)
+		drawDebug();
+
 	if(stored_depth_test)
 		glEnable(GL_DEPTH_TEST);
-
-	if (_debugSlots || _debugBones) {
-        drawDebug(prg, wld, viw, prj);
-	}
 }
 
-void SkeletonRenderer::drawDebug (GLProgram* prg, const LCXMAT4X4& wld, const LCXMAT4X4& viw, const LCXMAT4X4& prj) {
+void SkeletonRenderer::drawDebug () {
 
     //if (_debugSlots) {
     //    // Slots.

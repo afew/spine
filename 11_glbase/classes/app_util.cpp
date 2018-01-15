@@ -419,7 +419,8 @@ int LoadPNG(int* oW, int* oH, int* oD, unsigned char** oB, const char* _src_buf,
 	if(4 == img_depth)
 	{
 		unsigned int* pixel = (unsigned int*)img_data;
-		for(int i = 0; i < img_width * img_height; ++i)
+		int image_size = img_width * img_height;
+		for(int i = 0; i < image_size; ++i)
 		{
 			unsigned char* p = img_data + i * 4;
 			pixel[i] = CC_RGB_PREMULTIPLY_ALPHA(p[0], p[1], p[2], p[3]);

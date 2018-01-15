@@ -33,7 +33,7 @@
 
 #include <functional>
 #include <spine/spine.h>
-#include <spine/SkeletonRenderer.h>
+#include "SkeletonRenderer.h"
 
 namespace spine {
 
