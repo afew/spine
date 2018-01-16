@@ -5,11 +5,13 @@
 
 #include "ogl_util.h"
 
+void init_spine_lib();
+
 class Spine : public RenderObject
 {
 protected:
 	void* m_spineSkeleton {};
-	GLProgram* spine_prg {};
+	GLProgram* m_prg {};
 public:
 	Spine();
 	virtual ~Spine();

@@ -50,6 +50,9 @@
     <ClInclude Include="..\spine\SkeletonRenderer.h">
       <Filter>spine</Filter>
     </ClInclude>
+    <ClInclude Include="..\spine\spine-cocos2dx.h">
+      <Filter>spine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\_pvr_sdk\Windows\Resources\shared.rc">

@@ -137,6 +137,8 @@ App::~App()
 
 int App::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 {
+	init_spine_lib();
+
 	m_cam3d = GLCamera::create(GLCamera::GLCAM_3D, "3d world");
 	if(!m_cam3d)
 		return -1;
@@ -190,7 +192,6 @@ int App::Render()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 	m_spine->Render();
 

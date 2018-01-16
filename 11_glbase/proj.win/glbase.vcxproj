@@ -109,6 +109,7 @@
     <ClInclude Include="..\spine\Cocos2dAttachmentLoader.h" />
     <ClInclude Include="..\spine\SkeletonAnimation.h" />
     <ClInclude Include="..\spine\SkeletonRenderer.h" />
+    <ClInclude Include="..\spine\spine-cocos2dx.h" />
     <ClInclude Include="..\_pvr_sdk\Windows\Resources\resource.h" />
     <ClInclude Include="..\classes\App.h" />
     <ClInclude Include="..\classes\app_util.h" />

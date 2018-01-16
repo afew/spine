@@ -44,9 +44,9 @@ using std::min;
 using std::max;
 
 extern void spUtil_drawPrimitive(
-	void* _texture,
-	float* vertices, float* colors, float* texCoords, int stride,
-	unsigned short* idx, int idx_count
+	const void* _texture,
+	const float* vertices, const float* colors, const float* texCoords, int stride,
+	const unsigned short* idx, int idx_count
 	);
 
 
