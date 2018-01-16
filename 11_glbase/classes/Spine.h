@@ -11,7 +11,7 @@ class Spine : public RenderObject
 {
 protected:
 	void* m_spineSkeleton {};
-	GLProgram* m_prg {};
+
 public:
 	Spine();
 	virtual ~Spine();

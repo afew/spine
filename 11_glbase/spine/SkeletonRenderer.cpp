@@ -44,11 +44,10 @@ using std::min;
 using std::max;
 
 extern void spUtil_drawPrimitive(
-	const void* _texture,
-	const float* vertices, const float* colors, const float* texCoords, int stride,
-	const unsigned short* idx, int idx_count
-	);
-
+			const void* _texture,
+			const float* vertices, const float* colors, const float* texCoords, int stride,
+			const unsigned short* idx_buf, int idx_count
+			);
 
 namespace spine {
 
@@ -296,25 +295,28 @@ void SkeletonRenderer::draw (void) {
 		glBlendFunc(blendFunc.src, blendFunc.dst);
 
 		const SPINE_MESH& mesh = attachmentVertices->_mesh;
+		int    stride    = sizeof(SPINE_VTX);
 		float* vertices  = &mesh.vtx->pos.x;
 		float* colors    = &mesh.vtx->dif.r;
 		float* texCoords = &mesh.vtx->tex.x;
-		int size_stride = sizeof(SPINE_VTX);
-		::spUtil_drawPrimitive(attachmentVertices->_texture, vertices, colors, texCoords, size_stride, mesh.idx, mesh.n_idx);
+		unsigned short* idx_buf = mesh.idx;
+		int             idx_num = mesh.n_idx;
+		::spUtil_drawPrimitive(attachmentVertices->_texture, vertices, colors, texCoords, stride, idx_buf, idx_num);
 	}
 
 	glBlendFunc(stored_blend_src, stored_blend_dst);
 	if(!stored_blend_use)
 		glDisable(GL_BLEND);
 
-	if (_debugSlots || _debugBones)
-		drawDebug();
-
 	if(stored_depth_test)
 		glEnable(GL_DEPTH_TEST);
+
+	if (_debugSlots || _debugBones) {
+		drawDebug();
+	}
 }
 
-void SkeletonRenderer::drawDebug () {
+void SkeletonRenderer::drawDebug (void) {
 
     //if (_debugSlots) {
     //    // Slots.

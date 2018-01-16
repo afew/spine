@@ -48,10 +48,8 @@ public:
 
 	virtual void update (float deltaTime);
 	virtual void draw (void);
-    virtual void drawDebug (void);
+	virtual void drawDebug (void);
 	virtual LCXRECT getBoundingBox () const;
-	//virtual void onEnter () override;
-	//virtual void onExit () override;
 
 	spSkeleton* getSkeleton();
 

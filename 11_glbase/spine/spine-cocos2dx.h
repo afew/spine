@@ -44,4 +44,4 @@ void spine_functor(spFunc_createTexture  _createTexture
 					, spFunc_drawPrimitive  _drawPrimitive
 					);
 
-#endif
+#endif /* SPINE_COCOS2DX_H_ */

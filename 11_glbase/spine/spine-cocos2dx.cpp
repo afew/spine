@@ -37,10 +37,6 @@
   #include <GLES2/gl2.h>
 #endif
 #include <spine/extension.h>
-#include <spine/spine.h>
-#include "Cocos2dAttachmentLoader.h"
-#include "SkeletonRenderer.h"
-#include "SkeletonAnimation.h"
 #include "spine-cocos2dx.h"
 
 static spFunc_createTexture  _func_createTexture;
@@ -52,14 +48,12 @@ void spine_functor(   spFunc_createTexture  _createTexture
 					, spFunc_releaseTexture _releaseTexture
 					, spFunc_readFile       _readFile
 					, spFunc_drawPrimitive  _drawPrimitive
-					)
-{
+					) {
 	_func_createTexture  = _createTexture ;
 	_func_releaseTexture = _releaseTexture;
 	_func_readFile       = _readFile      ;
 	_func_drawPrimitive  = _drawPrimitive ;
 }
-
 
 static GLuint wrap (spAtlasWrap wrap) {
 	return wrap == SP_ATLAS_CLAMPTOEDGE ? GL_CLAMP_TO_EDGE : GL_REPEAT;
@@ -80,49 +74,53 @@ static GLuint filter (spAtlasFilter filter) {
 }
 
 void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
+	//GLTexture* texture = GLTexture::createFromFile(path, GLTexture::TYPE_2D, filter(self->minFilter), filter(self->magFilter), wrap(self->uWrap), wrap(self->vWrap));
+	//if(!texture)
+	//	return;
+	//self->rendererObject = texture;
+	//self->width  = texture->ImageW();
+	//self->height = texture->ImageH();
 	if(!_func_createTexture)
 		return;
-
 	int width = 0;
 	int height= 0;
 	void* texture = _func_createTexture(&width, &height, path, filter(self->minFilter), filter(self->magFilter), wrap(self->uWrap), wrap(self->vWrap));
 	if(!texture)
 		return;
-
 	self->rendererObject = texture;
 	self->width  = width;
 	self->height = height;
 }
 
 void _spAtlasPage_disposeTexture (spAtlasPage* self) {
+	//GLTexture* texture = (GLTexture*)(self->rendererObject);
+	//if(texture) {
+	//	delete texture;
+	//	self->rendererObject = NULL;
+	//}
 	if(!_func_releaseTexture)
 		return;
-
 	_func_releaseTexture(self->rendererObject);
 	self->rendererObject = NULL;
 }
 
 char* _spUtil_readFile (const char* path, int* length) {
-	if(!_func_readFile)
-		return NULL;
-
+	char* ret_buf = NULL;
 	int   ret_len = 0;
-	char* ret_buf = _func_readFile(&ret_len, path);
-	if(0>ret_buf)
+	int   ret = FileData::getFileDataWithMalloc(&ret_buf, &ret_len, path);
+	if(0>ret)
 		return NULL;
 
-	if(length)
-		*length = ret_len;
+	*length = ret_len;
 	return ret_buf;
 }
 
 void spUtil_drawPrimitive(
 			const void* _texture,
 			const float* vertices, const float* colors, const float* texCoords, int stride,
-			const unsigned short* idx, int idx_count
-			)
-{
+			const unsigned short* idx_buf, int idx_count
+			) {
 	if(!_func_drawPrimitive)
 		return;
-	_func_drawPrimitive(_texture, vertices, colors, texCoords, stride, idx, idx_count);
+	_func_drawPrimitive(_texture, vertices, colors, texCoords, stride, idx_buf, idx_count);
 }
