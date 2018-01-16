@@ -32,7 +32,9 @@
 #define SPINE_SKELETONRENDERER_H_
 
 #include "ogl_util.h"
+#include <functional>
 #include <spine/spine.h>
+#include <LcEuclid.h>
 
 namespace spine {
 
@@ -47,7 +49,7 @@ public:
 	static SkeletonRenderer* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
 
 	virtual void update (float deltaTime);
-	virtual void draw (void);
+	virtual void draw (const std::function<void(const void* _texture, const MESH_BUF2D* mesh)>& render);
 	virtual void drawDebug (void);
 	virtual LCXRECT getBoundingBox () const;
 
@@ -138,12 +140,13 @@ protected:
 	bool _debugBones;
 
 	COLORF4	m_color {COLORF4::WHITE};
-	bool		m_use_two_color {false};
 	LCXVEC3		m_pos{0,0,0};
 	LCXVEC3		m_scl{1,1,1};
 public:
-	const LCXVEC3 getPosition() const { return m_pos; }
-	const LCXVEC3 getScale() const { return m_scl; }
+	void color(const COLORF4& c) { m_color = c; }
+	const COLORF4& color() { return m_color; }
+	const LCXVEC3& getPosition() const { return m_pos; }
+	const LCXVEC3& getScale() const { return m_scl; }
 };
 
 }

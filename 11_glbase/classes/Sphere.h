@@ -8,7 +8,6 @@
 class Sphere : public RenderObject
 {
 protected:
-	GLProgram*	m_prg		{};
 	GLTexture*	m_tex		{};		// diffuse
 	GLMesh		mesh_spine	{};
 

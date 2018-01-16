@@ -29,8 +29,7 @@ GuiObject* Gui::createButton(const char* file_name0, const char* file_name1)
 }
 
 Gui::Gui()
-	: m_prg(0)
-	, m_tx0(0)
+	: m_tx0(0)
 	, m_tx1(0)
 {
 }
@@ -51,16 +50,11 @@ int Gui::Init(CPVOID p0, CPVOID p1, CPVOID, CPVOID)
 	if(!m_tx1)
 		return -1;
 
-	m_prg = GLProgram::createFromFile("media/shader/gui.vert", "media/shader/gui.frag");
-	if(!m_prg)
-		return -1;
-
 	return 0;
 }
 
 int Gui::Destroy()
 {
-	SAFE_DELETE(m_prg);
 	SAFE_DELETE(m_tx0);
 	SAFE_DELETE(m_tx1);
 	return 0;
@@ -112,17 +106,18 @@ int Gui::Render()
 	//}
 
 
-	m_prg->BeginProgram();
+	GLProgram* ogl_prg = GLProgram::createFromFile("media/shader/gui.vert", "media/shader/gui.frag");
+	if(!ogl_prg)
+		return -1;
+
+	ogl_prg->BeginProgram();
 
 	LCXMATRIX	mtWld;
 
+	ogl_prg->Texture("us_tx0", 0, m_tx0);
+	ogl_prg->Texture("us_tx1", 1, m_tx1);
 
-
-
-	m_prg->Texture("us_tx0", 0, m_tx0);
-	m_prg->Texture("us_tx1", 1, m_tx1);
-
-	m_prg->Matrix16("um_Prj", (GLfloat*)cam->Proj());
+	ogl_prg->Matrix16("um_Prj", (GLfloat*)cam->Proj());
 
 
 	glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, &src_pos[0]);
@@ -133,7 +128,7 @@ int Gui::Render()
 
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(1);
-	m_prg->EndProgram();
+	ogl_prg->EndProgram();
 
 	return 0;
 }

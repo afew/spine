@@ -42,17 +42,14 @@
 static spFunc_createTexture  _func_createTexture;
 static spFunc_releaseTexture _func_releaseTexture;
 static spFunc_readFile       _func_readFile;
-static spFunc_drawPrimitive  _func_drawPrimitive;
 
 void spine_functor(   spFunc_createTexture  _createTexture
 					, spFunc_releaseTexture _releaseTexture
 					, spFunc_readFile       _readFile
-					, spFunc_drawPrimitive  _drawPrimitive
 					) {
 	_func_createTexture  = _createTexture ;
 	_func_releaseTexture = _releaseTexture;
 	_func_readFile       = _readFile      ;
-	_func_drawPrimitive  = _drawPrimitive ;
 }
 
 static GLuint wrap (spAtlasWrap wrap) {
@@ -113,14 +110,4 @@ char* _spUtil_readFile (const char* path, int* length) {
 
 	*length = ret_len;
 	return ret_buf;
-}
-
-void spUtil_drawPrimitive(
-			const void* _texture,
-			const float* vertices, const float* colors, const float* texCoords, int stride,
-			const unsigned short* idx_buf, int idx_count
-			) {
-	if(!_func_drawPrimitive)
-		return;
-	_func_drawPrimitive(_texture, vertices, colors, texCoords, stride, idx_buf, idx_count);
 }

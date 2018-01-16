@@ -1,5 +1,8 @@
 ﻿
+#include <tuple>
 #include <vector>
+#include <string>
+#include <map>
 
 #ifdef _WIN32
   #include <tchar.h>
@@ -277,9 +280,17 @@ int GLTexture::SetPixel(int w, int h, int f, int t, void* pxl)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+static std::map<std::tuple<std::string, std::string>, GLProgram*> global_program;
 
 GLProgram* GLProgram::createFromFile(const char* file_vertexShaderSource, const char* file_fragmentShaderSource, const std::vector<std::string>& ls_attr)
 {
+	auto first=std::make_tuple(std::string(file_vertexShaderSource), std::string(file_fragmentShaderSource));
+	auto it = global_program.find(first);
+	if(it != global_program.end())
+	{
+		return it->second;
+	}
+
 	FileData file_vtx(file_vertexShaderSource);
 	FileData file_frg(file_fragmentShaderSource);
 	if(0>=file_vtx.size() || 0>= file_frg.size())
@@ -291,6 +302,7 @@ GLProgram* GLProgram::createFromFile(const char* file_vertexShaderSource, const 
 		delete ret;
 		return NULL;
 	}
+	global_program.emplace(first, ret);
 	return ret;
 }
 
@@ -563,17 +575,12 @@ GLFBO::GLFBO(int width, int height)
 	: m_tex(0)
 	, m_rnd(0)
 	, m_frm(0)
-	, m_prg(NULL)
 {
 	Init(width, height);
 }
 
 int GLFBO::Init(int w, int h)
 {
-	m_prg = GLProgram::createFromFile("media/shader/tex2d.vert", "media/shader/tex2d.frag");
-	if(!m_prg)
-		return -1;
-
 	glGetIntegerv(GL_TEXTURE_BINDING_2D  , &store_tex);
 	glGetIntegerv(GL_RENDERBUFFER_BINDING, &store_rnd);
 	glGetIntegerv(GL_FRAMEBUFFER_BINDING , &store_frm);
@@ -621,7 +628,6 @@ void GLFBO::Destroy()
 		glDeleteTextures(1, (GLuint*)m_tex);
 		m_tex = 0;
 	}
-	SAFE_DELETE(m_prg);
 }
 
 void GLFBO::begin()
@@ -638,7 +644,12 @@ void GLFBO::end()
 
 void GLFBO::draw()
 {
-	m_prg->BeginProgram();
+	GLProgram* ogl_prg = GLProgram::createFromFile("media/shader/tex2d.vert", "media/shader/tex2d.frag");
+	if(!ogl_prg)
+		return;
+
+
+	ogl_prg->BeginProgram();
 
 	float vtx_pos[] =
 	{
@@ -662,14 +673,15 @@ void GLFBO::draw()
 	glActiveTexture(GL_TEXTURE0 + nStage);
 	glBindTexture(GL_TEXTURE_2D, m_tex);
 
-	m_prg->Int("us_tx0", nStage);
+	ogl_prg->Int("us_tx0", nStage);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
-	glUseProgram(0);
+
+	ogl_prg->EndProgram();
 }
 
 //------------------------------------------------------------------------------

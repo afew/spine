@@ -4,11 +4,12 @@ attribute mediump vec2    at_tex;
 varying   lowp    vec4    vr_dif;
 varying   mediump vec2    vr_tx0;
 
-void main() {
-	vec4 pos    = um_Wld * at_pos;
-         pos    = um_Viw * pos;
-	gl_Position = um_Prj * pos;
+uniform   mediump mat4    um_WVP;
+uniform   lowp    vec4    us_tc;
 
-	vr_dif = at_dif;
+void main() {
+	gl_Position = um_WVP * at_pos;
+
+	vr_dif = at_dif * us_tc;
 	vr_tx0 = at_tex;
 }

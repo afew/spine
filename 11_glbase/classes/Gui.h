@@ -12,7 +12,6 @@ class GuiObject: public RenderObject
 class Gui : public GuiObject
 {
 protected:
-	GLProgram*		m_prg {};
 	GLTexture*		m_tx0 {};
 	GLTexture*		m_tx1 {};
 

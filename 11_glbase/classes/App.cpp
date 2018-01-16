@@ -16,7 +16,7 @@
 #include "app_util.h"
 #include "App.h"
 #include "Sphere.h"
-#include "Spine.h"
+#include "LcxSpine.h"
 
 
 
@@ -154,7 +154,7 @@ int App::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 	glGetIntegerv(GL_VIEWPORT, vpt);
 	m_fbo = GLFBO::create(vpt[2], vpt[3]);
 
-	m_spine = Spine::create("media/spine/spineboy.json", "media/spine/spineboy.atlas");
+	m_spine = LcxSpine::create("media/spine/spineboy.json", "media/spine/spineboy.atlas");
 	return 0;
 }
 

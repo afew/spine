@@ -18,7 +18,7 @@
 #include "spine-cocos2dx.h"
 using namespace spine;
 
-#include "Spine.h"
+#include "LcxSpine.h"
 
 
 static void* Spine_createTexture(int* width, int* height, const char* file_name, int minFilter, int magFilter, int wrap_s, int wrap_t)
@@ -53,41 +53,19 @@ static LCXMATRIX  spine_wld;
 static LCXMATRIX  spine_viw;
 static LCXMATRIX  spine_prj;
 
-static void Spine_drawPrimitive(  const void* _texture
-								, const float* vertices, const float* colors, const float* texCoords, int stride
-								, const unsigned short* idx_buf, int idx_count)
-{
-	GLTexture* texture = (GLTexture*)_texture;
-	spine_prg->BeginProgram();
-	spine_prg->Texture("us_tx0", 0, texture);
-
-	spine_prg->Matrix16("um_Wld", (float*)&spine_wld);
-	spine_prg->Matrix16("um_Viw", (float*)&spine_viw);
-	spine_prg->Matrix16("um_Prj", (float*)&spine_prj);
-
-	glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, vertices );
-	glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, colors   );
-	glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, texCoords);
-
-	glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, idx_buf);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(1);
-
-	spine_prg->EndProgram();
-}
 void init_spine_lib()
 {
-	spine_functor(Spine_createTexture, Spine_releaseTexture, Spine_readFile, Spine_drawPrimitive);
+	spine_functor(Spine_createTexture, Spine_releaseTexture, Spine_readFile);
 }
 
 
-Spine* Spine::create(const char* skel, const char* atlas)
+LcxSpine* LcxSpine::create(const char* skel, const char* atlas)
 {
-	Spine* obj = NULL;
+	LcxSpine* obj = NULL;
 	if(!skel || !atlas)
 		return NULL;
 
-	obj = new Spine;
+	obj = new LcxSpine;
 	if(0>obj->Init(skel, atlas))
 	{
 		delete obj;
@@ -96,16 +74,16 @@ Spine* Spine::create(const char* skel, const char* atlas)
 	return obj;
 }
 
-Spine::Spine()
+LcxSpine::LcxSpine()
 {
 }
 
-Spine::~Spine()
+LcxSpine::~LcxSpine()
 {
 	Destroy();
 }
 
-int Spine::Init(CPVOID c_skel, CPVOID c_atlas, CPVOID c_binary, CPVOID)
+int LcxSpine::Init(CPVOID c_skel, CPVOID c_atlas, CPVOID c_binary, CPVOID)
 {
 	const char* skel  = (const char*)c_skel;
 	const char* atlas = (const char*)c_atlas;
@@ -114,16 +92,11 @@ int Spine::Init(CPVOID c_skel, CPVOID c_atlas, CPVOID c_binary, CPVOID)
 		return -1;
 
 	spineSkeleton->setAnimation(0, "walk", true);
-
-	spine_prg = GLProgram::createFromFile("media/shader/spine.vert", "media/shader/spine.frag");
-	if(!spine_prg)
-		return -1;
-
 	m_spineSkeleton = spineSkeleton;
 	return 0;
 }
 
-int Spine::Destroy()
+int LcxSpine::Destroy()
 {
 	SkeletonAnimation* spineSkeleton = (SkeletonAnimation*)m_spineSkeleton;
 	if(spineSkeleton)
@@ -135,7 +108,7 @@ int Spine::Destroy()
 	return 0;
 }
 
-int Spine::FrameMove()
+int LcxSpine::FrameMove()
 {
 	SkeletonAnimation* spineSkeleton = (SkeletonAnimation*)m_spineSkeleton;
 	if(spineSkeleton)
@@ -143,9 +116,13 @@ int Spine::FrameMove()
 	return 0;
 }
 
-int	Spine::Render()
+int	LcxSpine::Render()
 {
 	GLCamera* cam = GLCamera::globalCamera("gui");
+	spine_prg = GLProgram::createFromFile("media/shader/spine.vert", "media/shader/spine.frag");
+	if(!spine_prg)
+		return -1;
+
 
 	MAT4X4 tm_wld;
 	tm_wld.Scaling(0.5F, 0.5F, 1.0F);
@@ -155,10 +132,41 @@ int	Spine::Render()
 	spine_wld = tm_wld;
 	spine_viw = *cam->View();
 	spine_prj = *cam->Proj();
+	LCXMATRIX  tm_WVP = spine_wld * spine_viw * spine_prj;
+	LCXCOLOR   us_tc {1.0F, 1.0F, 1.0F, 1.0F};
 
 	SkeletonAnimation* spineSkeleton = (SkeletonAnimation*)m_spineSkeleton;
 	if(spineSkeleton)
-		spineSkeleton->draw();
+	{
+		spineSkeleton->color({3.0F, 5.0F, 1.0F, 0.3F});
+
+		spineSkeleton->draw([this, &tm_WVP, &us_tc](const void* _texture, const MESH_BUF2D* mesh)
+		{
+			int    stride    = sizeof(VTX_PD2T);
+			float* vertices  = (float*)&mesh->vtx->pos;
+			float* colors    = (float*)&mesh->vtx->dif;
+			float* texCoords = (float*)&mesh->vtx->tex;
+			unsigned short* idx_buf = mesh->idx;
+			int             idx_num = mesh->n_idx;
+
+			GLTexture* texture = (GLTexture*)_texture;
+			spine_prg->BeginProgram();
+			spine_prg->Color4 ("us_tc", (const float*)&us_tc);
+			spine_prg->Texture("us_tx0", 0, texture);
+
+			spine_prg->Matrix16("um_WVP", (float*)&tm_WVP);
+
+			glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, vertices );
+			glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, colors   );
+			glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, texCoords);
+
+			glDrawElements(GL_TRIANGLES, idx_num, GL_UNSIGNED_SHORT, idx_buf);
+			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(1);
+
+			spine_prg->EndProgram();
+		});
+	}
 
 	return LC_OK;
 }

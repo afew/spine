@@ -35,26 +35,13 @@
 
 namespace spine {
 
-struct SPINE_VTX {
-	LCXVEC3		pos{};		// position
-	COLORF4		dif{};		// diffuse
-	LCXVEC2		tex{};		// texture coordinate
-};
-
-struct SPINE_MESH {
-	SPINE_VTX*	vtx  {};	// triangles
-	USHORT*		idx  {};	// indices
-	INT			n_vtx{};	// number triangles
-	INT			n_idx{};	// number indices
-};
-
 class AttachmentVertices {
 public:
 	AttachmentVertices (void* texture, int verticesCount, unsigned short* triangles, int trianglesCount);
 	virtual ~AttachmentVertices ();
 
 	void*      _texture{};
-	SPINE_MESH _mesh   {};
+	MESH_BUF2D _mesh   {};
 };
 
 }

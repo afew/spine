@@ -31,17 +31,14 @@
 #ifndef SPINE_COCOS2DX_H_
 #define SPINE_COCOS2DX_H_
 
+#include <LcEuclid.h>
 typedef void* (*spFunc_createTexture )(int* width, int* height, const char* file_name, int minFilter,int magFilter, int wrap_s, int wrap_t);
 typedef void  (*spFunc_releaseTexture)(void* texture);
 typedef char* (*spFunc_readFile      )(int* length, const char* path);
-typedef void  (*spFunc_drawPrimitive )(const void* _texture,
-										const float* vertices, const float* colors, const float* texCoords, int stride,
-										const unsigned short* idx, int idx_count);
 
 void spine_functor(spFunc_createTexture  _createTexture
 					, spFunc_releaseTexture _releaseTexture
 					, spFunc_readFile       _readFile
-					, spFunc_drawPrimitive  _drawPrimitive
 					);
 
 #endif /* SPINE_COCOS2DX_H_ */

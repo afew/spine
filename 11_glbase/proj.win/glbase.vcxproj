@@ -93,7 +93,7 @@
     <ClCompile Include="..\classes\Sphere.cpp" />
     <ClCompile Include="..\classes\Gui.cpp" />
     <ClCompile Include="..\classes\ogl_util.cpp" />
-    <ClCompile Include="..\classes\Spine.cpp" />
+    <ClCompile Include="..\classes\LcxSpine.cpp" />
     <ClCompile Include="..\spine\AttachmentVertices.cpp" />
     <ClCompile Include="..\spine\Cocos2dAttachmentLoader.cpp" />
     <ClCompile Include="..\spine\SkeletonAnimation.cpp" />
@@ -104,7 +104,7 @@
   <ItemGroup>
     <ClInclude Include="..\classes\Sphere.h" />
     <ClInclude Include="..\classes\Gui.h" />
-    <ClInclude Include="..\classes\Spine.h" />
+    <ClInclude Include="..\classes\LcxSpine.h" />
     <ClInclude Include="..\spine\AttachmentVertices.h" />
     <ClInclude Include="..\spine\Cocos2dAttachmentLoader.h" />
     <ClInclude Include="..\spine\SkeletonAnimation.h" />

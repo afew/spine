@@ -43,11 +43,7 @@
 using std::min;
 using std::max;
 
-extern void spUtil_drawPrimitive(
-			const void* _texture,
-			const float* vertices, const float* colors, const float* texCoords, int stride,
-			const unsigned short* idx_buf, int idx_count
-			);
+extern void spUtil_drawPrimitive(const void* _texture, const MESH_BUF2D* mesh);
 
 namespace spine {
 
@@ -210,7 +206,7 @@ void SkeletonRenderer::update (float deltaTime) {
 	spSkeleton_update(_skeleton, deltaTime * _timeScale);
 }
 
-void SkeletonRenderer::draw (void) {
+void SkeletonRenderer::draw (const std::function<void(const void* _texture, const MESH_BUF2D* mesh)>& render) {
 	int stored_blend_src = 0;
 	int stored_blend_dst = 0;
 	int stored_blend_use = 0;
@@ -267,7 +263,7 @@ void SkeletonRenderer::draw (void) {
 
 
 		for (int v = 0, w = 0, vn = attachmentVertices->_mesh.n_vtx; v < vn; ++v, w += 2) {
-			SPINE_VTX& vertex = attachmentVertices->_mesh.vtx[v];
+			VTX_PD2T& vertex = attachmentVertices->_mesh.vtx[v];
 			vertex.pos.x = _worldVertices[w + 0];
 			vertex.pos.y = _worldVertices[w + 1];
 			vertex.dif = color;
@@ -294,14 +290,14 @@ void SkeletonRenderer::draw (void) {
 
 		glBlendFunc(blendFunc.src, blendFunc.dst);
 
-		const SPINE_MESH& mesh = attachmentVertices->_mesh;
-		int    stride    = sizeof(SPINE_VTX);
+		const MESH_BUF2D& mesh = attachmentVertices->_mesh;
+		int    stride    = sizeof(VTX_PD2T);
 		float* vertices  = &mesh.vtx->pos.x;
 		float* colors    = &mesh.vtx->dif.r;
 		float* texCoords = &mesh.vtx->tex.x;
 		unsigned short* idx_buf = mesh.idx;
 		int             idx_num = mesh.n_idx;
-		::spUtil_drawPrimitive(attachmentVertices->_texture, vertices, colors, texCoords, stride, idx_buf, idx_num);
+		render(attachmentVertices->_texture, &mesh);
 	}
 
 	glBlendFunc(stored_blend_src, stored_blend_dst);

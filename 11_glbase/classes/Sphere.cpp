@@ -30,11 +30,6 @@ int Sphere::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 	if(!m_tex)
 		return -1;
 
-	m_prg = GLProgram::createFromFile("media/shader/simple3d.vert", "media/shader/simple3d.frag",{ "at_pos", "at_nor", "at_dif", "at_tex"});
-	if(!m_prg)
-		return -1;
-
-
 	// 버텍스 생성
 	int	iNSphereSegments	= 64;
 	mesh_spine.num_tri		= 2*iNSphereSegments*(iNSphereSegments+1);
@@ -94,8 +89,6 @@ int Sphere::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 
 int Sphere::Destroy()
 {
-	SAFE_DELETE(m_prg);
-
 	if(mesh_spine.num_ids)
 	{
 		glDeleteBuffers(mesh_spine.num_ids, &mesh_spine.pos);
@@ -137,18 +130,22 @@ int	Sphere::Render()
 	glEnable( GL_CULL_FACE );
 
 
-	m_prg->BeginProgram();
+	GLProgram* ogl_prg = GLProgram::createFromFile("media/shader/simple3d.vert", "media/shader/simple3d.frag",{ "at_pos", "at_nor", "at_dif", "at_tex"});
+	if(!ogl_prg)
+		return -1;
+
+	ogl_prg->BeginProgram();
 
 	COLORF4 color{1.0F, 1.0F, 1.0F, 1.0F};
-	m_prg->Color4("uc_dif", (float*)&color);
-	m_prg->Texture("us_tx0", 0, m_tex);
+	ogl_prg->Color4("uc_dif", (float*)&color);
+	ogl_prg->Texture("us_tx0", 0, m_tex);
 
 	GLCamera* cam = GLCamera::globalCamera("3d world");
 	if(cam)
 	{
-		m_prg->Matrix16("um_Wld", (GLfloat*)&mtWld);
-		m_prg->Matrix16("um_Viw", (GLfloat*)cam->View());
-		m_prg->Matrix16("um_Prj", (GLfloat*)cam->Proj());
+		ogl_prg->Matrix16("um_Wld", (GLfloat*)&mtWld);
+		ogl_prg->Matrix16("um_Viw", (GLfloat*)cam->View());
+		ogl_prg->Matrix16("um_Prj", (GLfloat*)cam->Proj());
 	}
 
 	glEnableVertexAttribArray(0);	glBindBuffer(GL_ARRAY_BUFFER, mesh_spine.pos);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -164,7 +161,7 @@ int	Sphere::Render()
 	glEnableVertexAttribArray(1);	glBindBuffer(GL_ARRAY_BUFFER, 1);	glDisableVertexAttribArray(1);
 	glEnableVertexAttribArray(0);	glBindBuffer(GL_ARRAY_BUFFER, 0);	glDisableVertexAttribArray(0);
 
-	m_prg->EndProgram();
+	ogl_prg->EndProgram();
 
 	return LC_OK;
 }

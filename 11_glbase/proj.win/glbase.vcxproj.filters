@@ -35,9 +35,6 @@
     <ClInclude Include="..\classes\Sphere.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="..\classes\Spine.h">
-      <Filter>classes</Filter>
-    </ClInclude>
     <ClInclude Include="..\spine\AttachmentVertices.h">
       <Filter>spine</Filter>
     </ClInclude>
@@ -52,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="..\spine\spine-cocos2dx.h">
       <Filter>spine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\classes\LcxSpine.h">
+      <Filter>classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -79,9 +79,6 @@
     <ClCompile Include="..\classes\Sphere.cpp">
       <Filter>classes</Filter>
     </ClCompile>
-    <ClCompile Include="..\classes\Spine.cpp">
-      <Filter>classes</Filter>
-    </ClCompile>
     <ClCompile Include="..\spine\AttachmentVertices.cpp">
       <Filter>spine</Filter>
     </ClCompile>
@@ -96,6 +93,9 @@
     </ClCompile>
     <ClCompile Include="..\spine\spine-cocos2dx.cpp">
       <Filter>spine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\classes\LcxSpine.cpp">
+      <Filter>classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

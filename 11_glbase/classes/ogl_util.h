@@ -120,7 +120,6 @@ protected:
 	int store_tex = 0;
 	int store_rnd = 0;
 	int store_frm = 0;
-    GLProgram* m_prg ={};
 public:
 	static GLFBO* create(int width, int height);
 
