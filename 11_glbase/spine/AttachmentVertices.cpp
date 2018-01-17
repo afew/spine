@@ -33,10 +33,10 @@
 namespace spine {
 
 AttachmentVertices::AttachmentVertices (void* texture, int verticesCount, unsigned short* triangles, int trianglesCount) {
-	_mesh = std::make_tuple(texture, nullptr, nullptr, nullptr, 0, verticesCount, triangles, trianglesCount);
-}
-
-AttachmentVertices::~AttachmentVertices () {
+	_texture = texture;
+	_vtx_num = verticesCount;
+	_idx_buf = triangles;
+	_idx_num = trianglesCount;
 }
 
 }

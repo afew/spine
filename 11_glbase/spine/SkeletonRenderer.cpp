@@ -66,20 +66,37 @@ void SkeletonRenderer::initialize () {
 
 	setOpacityModifyRGB(true);
 
-	int new_size = 3 * 6 * 16;	// 3-dimensional * 6 verticies * 16 rectangle
 	AttachmentVertices* attachmentVertices{};
-	for(int i = 0, n = _skeleton->slotsCount; i < n; ++i) {
-		spSlot* slot = _skeleton->drawOrder[i];
-		if(!slot->attachment || SP_ATTACHMENT_MESH != slot->attachment->type)
-			continue;
+	int max_vertex_count = 4;	// 6 verticies * 16 rectangle
 
-		spMeshAttachment* attachment = (spMeshAttachment*)slot->attachment;
-		int worldVerticesLength = attachment->super.worldVerticesLength;
-		if(new_size <worldVerticesLength)
-			new_size = worldVerticesLength;
+	_vtx_num = 0;
+	for (int i = 0, n = _skeleton->slotsCount; i < n; ++i) {
+		spSlot* slot = _skeleton->drawOrder[i];
+		if (!slot->attachment) continue;
+
+		switch (slot->attachment->type) {
+		case SP_ATTACHMENT_REGION: {
+			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
+			attachmentVertices = getAttachmentVertices(attachment);
+
+			break;
+		}
+		case SP_ATTACHMENT_MESH: {
+			spMeshAttachment* attachment = (spMeshAttachment*)slot->attachment;
+			attachmentVertices = getAttachmentVertices(attachment);
+			break;
+		}
+		default:
+			continue;
+		}
+
+		_vtx_num += attachmentVertices->_vtx_num;
+		if(max_vertex_count<attachmentVertices->_vtx_num)
+			max_vertex_count = attachmentVertices->_vtx_num;
 	}
-	if(0< new_size)
-		_worldVertices = new float[new_size]{};
+
+	_vtx_pos = new LCXVEC2[_vtx_num]{};
+	_vtx_dif = new COLORF4[_vtx_num]{};
 }
 
 void SkeletonRenderer::setSkeletonData (spSkeletonData *skeletonData, bool ownsSkeletonData) {
@@ -111,7 +128,8 @@ SkeletonRenderer::~SkeletonRenderer () {
 	spSkeleton_dispose(_skeleton);
 	if (_atlas) spAtlas_dispose(_atlas);
 	if (_attachmentLoader) spAttachmentLoader_dispose(_attachmentLoader);
-	if(_worldVertices) delete [] _worldVertices;
+	if(_vtx_pos) delete [] _vtx_pos;
+	if(_vtx_dif) delete [] _vtx_dif;
 }
 
 void SkeletonRenderer::initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData) {
@@ -233,7 +251,7 @@ void SkeletonRenderer::draw (const SpineRender& render) {
 		switch (slot->attachment->type) {
 		case SP_ATTACHMENT_REGION: {
 			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
-			spRegionAttachment_computeWorldVertices(attachment, slot->bone, _worldVertices);
+			spRegionAttachment_computeWorldVertices(attachment, slot->bone, (float*)_vtx_pos);
 			attachmentVertices = getAttachmentVertices(attachment);
             color.r = attachment->r;
 			color.g = attachment->g;
@@ -243,7 +261,7 @@ void SkeletonRenderer::draw (const SpineRender& render) {
 		}
 		case SP_ATTACHMENT_MESH: {
 			spMeshAttachment* attachment = (spMeshAttachment*)slot->attachment;
-			spMeshAttachment_computeWorldVertices(attachment, slot, _worldVertices);
+			spMeshAttachment_computeWorldVertices(attachment, slot, (float*)_vtx_pos);
 			attachmentVertices = getAttachmentVertices(attachment);
             color.r = attachment->r;
             color.g = attachment->g;
@@ -289,18 +307,12 @@ void SkeletonRenderer::draw (const SpineRender& render) {
 
 		glBlendFunc(blendFunc.src, blendFunc.dst);
 
-		auto& mesh = attachmentVertices->_mesh;
-		//int    stride    = sizeof(VTX_PD2T);
-		//float* vertices  = &mesh.vtx->pos.x;
-		//float* colors    = &mesh.vtx->dif.r;
-		//float* texCoords = &mesh.vtx->tex.x;
-
-		void* texture   = std::get<SPINEMESHARGS_TEXTURE >(mesh);
-		float* pos      = _worldVertices;
-		float* tex      = std::get<SPINEMESHARGS_TEXCOORD>(mesh);
+		void* texture   = attachmentVertices->_texture;
+		float* pos      = (float*)_vtx_pos;
+		float* tex      = attachmentVertices->_vtx_tex;
 		int    stride   = 0;
-		USHORT* idx_buf = std::get<SPINEMESHARGS_IDX_BUF >(mesh);
-		int     idx_num = std::get<SPINEMESHARGS_IDX_NUM>(mesh);
+		USHORT* idx_buf = attachmentVertices->_idx_buf;
+		int     idx_num = attachmentVertices->_idx_num;
 		render(SpineMeshArgs{texture, pos, tex, (float*)&color, stride, 0, idx_buf, idx_num});
 	}
 
@@ -374,16 +386,16 @@ LCXRECT SkeletonRenderer::getBoundingBox () const {
 		int verticesCount;
 		if (slot->attachment->type == SP_ATTACHMENT_REGION) {
 			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
-			spRegionAttachment_computeWorldVertices(attachment, slot->bone, _worldVertices);
+			spRegionAttachment_computeWorldVertices(attachment, slot->bone, (float*)_vtx_pos);
 			verticesCount = 8;
 		} else if (slot->attachment->type == SP_ATTACHMENT_MESH) {
 			spMeshAttachment* mesh = (spMeshAttachment*)slot->attachment;
-			spMeshAttachment_computeWorldVertices(mesh, slot, _worldVertices);
+			spMeshAttachment_computeWorldVertices(mesh, slot, (float*)_vtx_pos);
 			verticesCount = mesh->super.worldVerticesLength;
 		} else
 			continue;
-		for (int ii = 0; ii < verticesCount; ii += 2) {
-			float x = _worldVertices[ii] * scaleX, y = _worldVertices[ii + 1] * scaleY;
+		for (int ii = 0; ii < verticesCount/2; ++ii) {
+			float x = _vtx_pos[ii].x * scaleX, y = _vtx_pos[ii].y * scaleY;
 			minX = min(minX, x);
 			minY = min(minY, y);
 			maxX = max(maxX, x);

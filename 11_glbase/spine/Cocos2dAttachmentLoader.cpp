@@ -56,7 +56,7 @@ void _Cocos2dAttachmentLoader_configureAttachment (spAttachmentLoader* loader, s
 		//	vertices[i].tex.y = regionAttachment->uvs[ii + 1];
 		//}
 
-		std::get<spine::SPINEMESHARGS_TEXCOORD>(attachmentVertices->_mesh) = (float*)regionAttachment->uvs;
+		attachmentVertices->_vtx_tex = (float*)regionAttachment->uvs;
 		regionAttachment->rendererObject = attachmentVertices;
 		break;
 	}
@@ -72,8 +72,7 @@ void _Cocos2dAttachmentLoader_configureAttachment (spAttachmentLoader* loader, s
 		//	vertices[i].tex.y = meshAttachment->uvs[ii + 1];
 		//}
 
-		std::get<spine::SPINEMESHARGS_TEXCOORD>(attachmentVertices->_mesh) = (float*)meshAttachment->uvs;
-		
+		attachmentVertices->_vtx_tex = (float*)meshAttachment->uvs;
 		meshAttachment->rendererObject = attachmentVertices;
 		break;
 	}

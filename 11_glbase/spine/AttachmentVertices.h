@@ -35,38 +35,17 @@
 
 namespace spine {
 
-#ifndef SPINEMESHARGS
-#define SPINEMESHARGS
-typedef std::tuple
-<
-	  void*				// 0: texture
-	, float*			// 1: pos
-	, float*			// 2: tex
-	, float*			// 3: color
-	, int				// 4: stride
-	, int				// 5: vertex count
-	, unsigned short*	// 6: idx_buf
-	, int				// 7: idx count
-> SpineMeshArgs;
-
-enum
-{
-	SPINEMESHARGS_TEXTURE = 0,
-	SPINEMESHARGS_POSITION,
-	SPINEMESHARGS_TEXCOORD,
-	SPINEMESHARGS_DIFFUSE ,
-	SPINEMESHARGS_STRIDE  ,
-	SPINEMESHARGS_VTX_NUM ,
-	SPINEMESHARGS_IDX_BUF ,
-	SPINEMESHARGS_IDX_NUM ,
-};
-#endif
-
 class AttachmentVertices {
 public:
 	AttachmentVertices (void* texture, int verticesCount, unsigned short* triangles, int trianglesCount);
-	virtual ~AttachmentVertices ();
-	SpineMeshArgs	_mesh {};
+
+	void*           _texture{};		// texture
+	int             _vtx_num{};		// vertex count
+	float*          _vtx_pos{};		// vertex position
+	float*          _vtx_dif{};		// vertex diffuse color
+	float*          _vtx_tex{};		// vertex texture coords
+	int             _idx_num{};		// index count
+	unsigned short* _idx_buf{};		// index buffer
 };
 
 }

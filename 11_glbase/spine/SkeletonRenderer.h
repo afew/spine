@@ -154,14 +154,16 @@ protected:
 	spAttachmentLoader* _attachmentLoader;
 	BlendFunc _blendFunc {0x0302, 0x0303};
 
-	float* _worldVertices{};
-
 	bool _premultipliedAlpha;
 	spSkeleton* _skeleton;
 	float _timeScale;
 	bool _debugSlots;
 	bool _debugBones;
 
+	int      _vtx_num{};
+	LCXVEC2* _vtx_pos{};		// position
+	COLORF4* _vtx_dif{};		// position
+	
 	COLORF4	m_color {COLORF4::WHITE};
 	LCXVEC3		m_pos{0,0,0};
 	LCXVEC3		m_scl{1,1,1};

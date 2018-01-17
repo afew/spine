@@ -137,7 +137,7 @@ int	LcxSpine::Render()
 	SkeletonAnimation* spineSkeleton = (SkeletonAnimation*)m_spineSkeleton;
 	if(spineSkeleton)
 	{
-		spineSkeleton->color({1.0F, 1.0F, 1.0F, 0.3F});
+		spineSkeleton->color({1.0F, 1.0F, 1.0F, 0.5F});
 
 		spineSkeleton->draw([this, &tm_WVP](const spine::SpineMeshArgs& args)
 		{
