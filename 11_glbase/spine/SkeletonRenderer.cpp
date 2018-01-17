@@ -66,19 +66,20 @@ void SkeletonRenderer::initialize () {
 
 	setOpacityModifyRGB(true);
 
-	_worldVertices.resize(_skeleton->slotsCount * 2 * 4);
-	int new_size = (int)_worldVertices.size();
-	for (int i = 0, n = _skeleton->slotsCount; i < n; ++i) {
+	int new_size = 3 * 6 * 16;	// 3-dimensional * 6 verticies * 16 rectangle
+	AttachmentVertices* attachmentVertices{};
+	for(int i = 0, n = _skeleton->slotsCount; i < n; ++i) {
 		spSlot* slot = _skeleton->drawOrder[i];
 		if(!slot->attachment || SP_ATTACHMENT_MESH != slot->attachment->type)
 			continue;
 
 		spMeshAttachment* attachment = (spMeshAttachment*)slot->attachment;
 		int worldVerticesLength = attachment->super.worldVerticesLength;
-		if(new_size < worldVerticesLength)
+		if(new_size <worldVerticesLength)
 			new_size = worldVerticesLength;
 	}
-	_worldVertices.resize(new_size);
+	if(new_size)
+		_worldVertices.resize(new_size);
 }
 
 void SkeletonRenderer::setSkeletonData (spSkeletonData *skeletonData, bool ownsSkeletonData) {
