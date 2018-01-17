@@ -64,7 +64,7 @@ typedef struct spSkeleton {
 
 	spSkin* const skin;
 	float r, g, b, a;
-	float time;
+	float time_elapsed;
 	int/*bool*/flipX, flipY;
 	float x, y;
 
@@ -86,7 +86,7 @@ typedef struct spSkeleton {
 
 		skin(0),
 		r(0), g(0), b(0), a(0),
-		time(0),
+		time_elapsed(0),
 		flipX(0),
 		flipY(0),
 		x(0), y(0) {

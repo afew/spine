@@ -699,7 +699,11 @@ struct VTX_PD2T
 
 struct MESH_BUF2D
 {
-	VTX_PD2T*	vtx{};		// triangles
+	//VTX_PD2T*	vtx{};		// triangles
+	LCXVEC2*	pos{};		// position
+	COLORF4*	dif{};		// diffuse
+	LCXVEC2*	tex{};		// texture coordinate
+
 	USHORT*		idx{};		// indices
 	INT			n_vtx{};	// number triangles
 	INT			n_idx{};	// number indices

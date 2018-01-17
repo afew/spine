@@ -78,8 +78,8 @@ void SkeletonRenderer::initialize () {
 		if(new_size <worldVerticesLength)
 			new_size = worldVerticesLength;
 	}
-	if(new_size)
-		_worldVertices.resize(new_size);
+	if(0< new_size)
+		_worldVertices = new float[new_size]{};
 }
 
 void SkeletonRenderer::setSkeletonData (spSkeletonData *skeletonData, bool ownsSkeletonData) {
@@ -111,7 +111,7 @@ SkeletonRenderer::~SkeletonRenderer () {
 	spSkeleton_dispose(_skeleton);
 	if (_atlas) spAtlas_dispose(_atlas);
 	if (_attachmentLoader) spAttachmentLoader_dispose(_attachmentLoader);
-	_worldVertices.clear();
+	if(_worldVertices) delete [] _worldVertices;
 }
 
 void SkeletonRenderer::initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData) {
@@ -207,7 +207,7 @@ void SkeletonRenderer::update (float deltaTime) {
 	spSkeleton_update(_skeleton, deltaTime * _timeScale);
 }
 
-void SkeletonRenderer::draw (const std::function<void(const void* _texture, const MESH_BUF2D* mesh)>& render) {
+void SkeletonRenderer::draw (const SpineRender& render) {
 	int stored_blend_src = 0;
 	int stored_blend_dst = 0;
 	int stored_blend_use = 0;
@@ -219,11 +219,10 @@ void SkeletonRenderer::draw (const std::function<void(const void* _texture, cons
 	glEnable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
-	COLORF4 nodeColor = m_color;
-	_skeleton->r = nodeColor.r;
-	_skeleton->g = nodeColor.g;
-	_skeleton->b = nodeColor.b;
-	_skeleton->a = nodeColor.a;
+	_skeleton->r = m_color.r;
+	_skeleton->g = m_color.g;
+	_skeleton->b = m_color.b;
+	_skeleton->a = m_color.a;
 
     COLORF4 color;
 	AttachmentVertices* attachmentVertices = nullptr;
@@ -234,7 +233,7 @@ void SkeletonRenderer::draw (const std::function<void(const void* _texture, cons
 		switch (slot->attachment->type) {
 		case SP_ATTACHMENT_REGION: {
 			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
-			spRegionAttachment_computeWorldVertices(attachment, slot->bone, _worldVertices.data());
+			spRegionAttachment_computeWorldVertices(attachment, slot->bone, _worldVertices);
 			attachmentVertices = getAttachmentVertices(attachment);
             color.r = attachment->r;
 			color.g = attachment->g;
@@ -244,7 +243,7 @@ void SkeletonRenderer::draw (const std::function<void(const void* _texture, cons
 		}
 		case SP_ATTACHMENT_MESH: {
 			spMeshAttachment* attachment = (spMeshAttachment*)slot->attachment;
-			spMeshAttachment_computeWorldVertices(attachment, slot, _worldVertices.data());
+			spMeshAttachment_computeWorldVertices(attachment, slot, _worldVertices);
 			attachmentVertices = getAttachmentVertices(attachment);
             color.r = attachment->r;
             color.g = attachment->g;
@@ -262,13 +261,12 @@ void SkeletonRenderer::draw (const std::function<void(const void* _texture, cons
 		color.g *= _skeleton->g * slot->g * multiplier;
 		color.b *= _skeleton->b * slot->b * multiplier;
 
-
-		for (int v = 0, w = 0, vn = attachmentVertices->_mesh.n_vtx; v < vn; ++v, w += 2) {
-			VTX_PD2T& vertex = attachmentVertices->_mesh.vtx[v];
-			vertex.pos.x = _worldVertices[w + 0];
-			vertex.pos.y = _worldVertices[w + 1];
-			vertex.dif = color;
-		}
+		//for (int v = 0, w = 0, vn = attachmentVertices->_mesh.n_vtx; v < vn; ++v, w += 2) {
+		//	VTX_PD2T& vertex = attachmentVertices->_mesh.vtx[v];
+		//	vertex.pos.x = _worldVertices[w + 0];
+		//	vertex.pos.y = _worldVertices[w + 1];
+		//	vertex.dif = color;
+		//}
 
 		BlendFunc blendFunc;
 		switch (slot->data->blendMode) {
@@ -291,14 +289,19 @@ void SkeletonRenderer::draw (const std::function<void(const void* _texture, cons
 
 		glBlendFunc(blendFunc.src, blendFunc.dst);
 
-		const MESH_BUF2D& mesh = attachmentVertices->_mesh;
-		int    stride    = sizeof(VTX_PD2T);
-		float* vertices  = &mesh.vtx->pos.x;
-		float* colors    = &mesh.vtx->dif.r;
-		float* texCoords = &mesh.vtx->tex.x;
-		unsigned short* idx_buf = mesh.idx;
-		int             idx_num = mesh.n_idx;
-		render(attachmentVertices->_texture, &mesh);
+		auto& mesh = attachmentVertices->_mesh;
+		//int    stride    = sizeof(VTX_PD2T);
+		//float* vertices  = &mesh.vtx->pos.x;
+		//float* colors    = &mesh.vtx->dif.r;
+		//float* texCoords = &mesh.vtx->tex.x;
+
+		void* texture   = std::get<SPINEMESHARGS_TEXTURE >(mesh);
+		float* pos      = _worldVertices;
+		float* tex      = std::get<SPINEMESHARGS_TEXCOORD>(mesh);
+		int    stride   = 0;
+		USHORT* idx_buf = std::get<SPINEMESHARGS_IDX_BUF >(mesh);
+		int     idx_num = std::get<SPINEMESHARGS_IDX_NUM>(mesh);
+		render(SpineMeshArgs{texture, pos, tex, (float*)&color, stride, 0, idx_buf, idx_num});
 	}
 
 	glBlendFunc(stored_blend_src, stored_blend_dst);
@@ -363,9 +366,6 @@ AttachmentVertices* SkeletonRenderer::getAttachmentVertices (spMeshAttachment* a
 
 LCXRECT SkeletonRenderer::getBoundingBox () const {
 
-	std::vector<float> tmp_worldVertices;
-	tmp_worldVertices.resize(_worldVertices.size());
-
 	float minX = FLT_MAX, minY = FLT_MAX, maxX = -FLT_MAX, maxY = -FLT_MAX;
 	float scaleX = m_scl.x, scaleY = m_scl.y;
 	for (int i = 0; i < _skeleton->slotsCount; ++i) {
@@ -374,16 +374,16 @@ LCXRECT SkeletonRenderer::getBoundingBox () const {
 		int verticesCount;
 		if (slot->attachment->type == SP_ATTACHMENT_REGION) {
 			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
-			spRegionAttachment_computeWorldVertices(attachment, slot->bone, tmp_worldVertices.data());
+			spRegionAttachment_computeWorldVertices(attachment, slot->bone, _worldVertices);
 			verticesCount = 8;
 		} else if (slot->attachment->type == SP_ATTACHMENT_MESH) {
 			spMeshAttachment* mesh = (spMeshAttachment*)slot->attachment;
-			spMeshAttachment_computeWorldVertices(mesh, slot, tmp_worldVertices.data());
+			spMeshAttachment_computeWorldVertices(mesh, slot, _worldVertices);
 			verticesCount = mesh->super.worldVerticesLength;
 		} else
 			continue;
 		for (int ii = 0; ii < verticesCount; ii += 2) {
-			float x = tmp_worldVertices[ii] * scaleX, y = tmp_worldVertices[ii + 1] * scaleY;
+			float x = _worldVertices[ii] * scaleX, y = _worldVertices[ii + 1] * scaleY;
 			minX = min(minX, x);
 			minY = min(minY, y);
 			maxX = max(maxX, x);

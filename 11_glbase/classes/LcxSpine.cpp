@@ -133,35 +133,33 @@ int	LcxSpine::Render()
 	spine_viw = *cam->View();
 	spine_prj = *cam->Proj();
 	LCXMATRIX  tm_WVP = spine_wld * spine_viw * spine_prj;
-	LCXCOLOR   us_tc {1.0F, 1.0F, 1.0F, 1.0F};
 
 	SkeletonAnimation* spineSkeleton = (SkeletonAnimation*)m_spineSkeleton;
 	if(spineSkeleton)
 	{
-		spineSkeleton->color({3.0F, 5.0F, 1.0F, 0.3F});
+		spineSkeleton->color({1.0F, 1.0F, 1.0F, 0.3F});
 
-		spineSkeleton->draw([this, &tm_WVP, &us_tc](const void* _texture, const MESH_BUF2D* mesh)
+		spineSkeleton->draw([this, &tm_WVP](const spine::SpineMeshArgs& args)
 		{
-			int    stride    = sizeof(VTX_PD2T);
-			float* vertices  = (float*)&mesh->vtx->pos;
-			float* colors    = (float*)&mesh->vtx->dif;
-			float* texCoords = (float*)&mesh->vtx->tex;
-			unsigned short* idx_buf = mesh->idx;
-			int             idx_num = mesh->n_idx;
+			GLTexture* texture      = (GLTexture*)std::get<SPINEMESHARGS_TEXTURE>(args);
+			const float* pos        = std::get<SPINEMESHARGS_POSITION>(args);
+			const float* tex        = std::get<SPINEMESHARGS_TEXCOORD>(args);
+			const float* color      = std::get<SPINEMESHARGS_DIFFUSE >(args);
+			int stride              = std::get<SPINEMESHARGS_STRIDE  >(args);
+			const USHORT* idx_buf   = std::get<SPINEMESHARGS_IDX_BUF >(args);
+			int   idx_num           = std::get<SPINEMESHARGS_IDX_NUM >(args);
 
-			GLTexture* texture = (GLTexture*)_texture;
 			spine_prg->BeginProgram();
-			spine_prg->Color4 ("us_tc", (const float*)&us_tc);
+			spine_prg->Color4 ("us_tc", color);
 			spine_prg->Texture("us_tx0", 0, texture);
 
 			spine_prg->Matrix16("um_WVP", (float*)&tm_WVP);
 
-			glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, vertices );
-			glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, colors   );
-			glEnableVertexAttribArray(2);	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, texCoords);
+			glEnableVertexAttribArray(0);	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos );
+			glEnableVertexAttribArray(1);	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 
 			glDrawElements(GL_TRIANGLES, idx_num, GL_UNSIGNED_SHORT, idx_buf);
-			glDisableVertexAttribArray(2);
+			//glDisableVertexAttribArray(2);
 			glDisableVertexAttribArray(1);
 
 			spine_prg->EndProgram();

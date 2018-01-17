@@ -33,12 +33,42 @@
 
 #include "ogl_util.h"
 #include <functional>
+#include <tuple>
 #include <spine/spine.h>
 #include <LcEuclid.h>
 
 namespace spine {
 
 class AttachmentVertices;
+
+#ifndef SPINEMESHARGS
+#define SPINEMESHARGS
+typedef std::tuple
+<
+	  void*				// 0: texture
+	, float*			// 1: pos
+	, float*			// 2: texcoord
+	, float*			// 3: color
+	, int				// 4: stride
+	, int				// 5: vertex count
+	, unsigned short*	// 6: idx_buf
+	, int				// 7: idx count
+> SpineMeshArgs;
+
+enum
+{
+	SPINEMESHARGS_TEXTURE = 0,
+	SPINEMESHARGS_POSITION,
+	SPINEMESHARGS_TEXCOORD,
+	SPINEMESHARGS_DIFFUSE ,
+	SPINEMESHARGS_STRIDE  ,
+	SPINEMESHARGS_VTX_NUM ,
+	SPINEMESHARGS_IDX_BUF ,
+	SPINEMESHARGS_IDX_NUM ,
+};
+#endif
+
+typedef std::function<void(const SpineMeshArgs&)> SpineRender;
 
 /* Draws a skeleton. */
 class SkeletonRenderer {
@@ -49,7 +79,7 @@ public:
 	static SkeletonRenderer* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
 
 	virtual void update (float deltaTime);
-	virtual void draw (const std::function<void(const void* _texture, const MESH_BUF2D* mesh)>& render);
+	virtual void draw (const SpineRender& render);
 	virtual void drawDebug (void);
 	virtual LCXRECT getBoundingBox () const;
 
@@ -124,14 +154,7 @@ protected:
 	spAttachmentLoader* _attachmentLoader;
 	BlendFunc _blendFunc {0x0302, 0x0303};
 
-#if defined(WIN32)
-  #pragma warning(push)
-  #pragma warning(disable : 4251)
-#endif
-	std::vector<float> _worldVertices;
-#if defined(WIN32)
-  #pragma warning(pop)
-#endif
+	float* _worldVertices{};
 
 	bool _premultipliedAlpha;
 	spSkeleton* _skeleton;

@@ -50,11 +50,13 @@ void _Cocos2dAttachmentLoader_configureAttachment (spAttachmentLoader* loader, s
 		spRegionAttachment* regionAttachment = SUB_CAST(spRegionAttachment, attachment);
 		spAtlasRegion* region = (spAtlasRegion*)regionAttachment->rendererObject;
 		AttachmentVertices* attachmentVertices = new AttachmentVertices(region->page->rendererObject, 4, quadTriangles, 6);
-		VTX_PD2T* vertices = attachmentVertices->_mesh.vtx;
-		for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
-			vertices[i].tex.x = regionAttachment->uvs[ii + 0];
-			vertices[i].tex.y = regionAttachment->uvs[ii + 1];
-		}
+		//VTX_PD2T* vertices = attachmentVertices->_mesh.vtx;
+		//for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
+		//	vertices[i].tex.x = regionAttachment->uvs[ii + 0];
+		//	vertices[i].tex.y = regionAttachment->uvs[ii + 1];
+		//}
+
+		std::get<spine::SPINEMESHARGS_TEXCOORD>(attachmentVertices->_mesh) = (float*)regionAttachment->uvs;
 		regionAttachment->rendererObject = attachmentVertices;
 		break;
 	}
@@ -63,11 +65,15 @@ void _Cocos2dAttachmentLoader_configureAttachment (spAttachmentLoader* loader, s
 		spAtlasRegion* region = (spAtlasRegion*)meshAttachment->rendererObject;
 		AttachmentVertices* attachmentVertices = new AttachmentVertices(region->page->rendererObject,
 			meshAttachment->super.worldVerticesLength >> 1, meshAttachment->triangles, meshAttachment->trianglesCount);
-		VTX_PD2T* vertices = attachmentVertices->_mesh.vtx;
-		for (int i = 0, ii = 0, nn = meshAttachment->super.worldVerticesLength; ii < nn; ++i, ii += 2) {
-			vertices[i].tex.x = meshAttachment->uvs[ii + 0];
-			vertices[i].tex.y = meshAttachment->uvs[ii + 1];
-		}
+
+		//VTX_PD2T* vertices = attachmentVertices->_mesh.vtx;
+		//for (int i = 0, ii = 0, nn = meshAttachment->super.worldVerticesLength; ii < nn; ++i, ii += 2) {
+		//	vertices[i].tex.x = meshAttachment->uvs[ii + 0];
+		//	vertices[i].tex.y = meshAttachment->uvs[ii + 1];
+		//}
+
+		std::get<spine::SPINEMESHARGS_TEXCOORD>(attachmentVertices->_mesh) = (float*)meshAttachment->uvs;
+		
 		meshAttachment->rendererObject = attachmentVertices;
 		break;
 	}
