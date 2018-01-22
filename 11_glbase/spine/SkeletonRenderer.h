@@ -43,29 +43,42 @@ class AttachmentVertices;
 
 #ifndef SPINEMESHARGS
 #define SPINEMESHARGS
-typedef std::tuple
-<
-	  void*				// 0: texture
-	, float*			// 1: pos
-	, float*			// 2: color
-	, float*			// 3: texcoord
-	, int				// 4: stride
-	, int				// 5: vertex count
-	, unsigned short*	// 6: idx_buf
-	, int				// 7: idx count
-> SpineMeshArgs;
+//typedef std::tuple
+//<
+//	  void*				// 0: texture
+//	, float*			// 1: pos
+//	, float*			// 2: color
+//	, float*			// 3: texcoord
+//	, int				// 4: stride
+//	, int				// 5: vertex count
+//	, unsigned short*	// 6: idx_buf
+//	, int				// 7: idx count
+//> SpineMeshArgs;
+//
+//enum
+//{
+//	SPINEMESHARGS_TEXTURE = 0,
+//	SPINEMESHARGS_POSITION,
+//	SPINEMESHARGS_DIFFUSE ,
+//	SPINEMESHARGS_TEXCOORD,
+//	SPINEMESHARGS_STRIDE  ,
+//	SPINEMESHARGS_VTX_NUM ,
+//	SPINEMESHARGS_IDX_BUF ,
+//	SPINEMESHARGS_IDX_NUM ,
+//};
 
-enum
+struct SpineMeshArgs
 {
-	SPINEMESHARGS_TEXTURE = 0,
-	SPINEMESHARGS_POSITION,
-	SPINEMESHARGS_DIFFUSE ,
-	SPINEMESHARGS_TEXCOORD,
-	SPINEMESHARGS_STRIDE  ,
-	SPINEMESHARGS_VTX_NUM ,
-	SPINEMESHARGS_IDX_BUF ,
-	SPINEMESHARGS_IDX_NUM ,
+	void*			texture;
+	float*			pos;
+	float*			dif;
+	float*			tex;
+	int				stride;
+	int				vtx_num;
+	unsigned short*	idx_buf;
+	int				idx_num;
 };
+
 #endif
 
 typedef std::function<void(const SpineMeshArgs&)> SpineRender;
@@ -148,10 +161,10 @@ protected:
 	virtual AttachmentVertices* getAttachmentVertices (spMeshAttachment* attachment) const;
 
 	bool _ownsSkeletonData;
-	spAtlas* _atlas;
+	spAtlas* m_atlas{};
+	spSkeleton* m_skeleton{};
 	spAttachmentLoader* _attachmentLoader;
 	bool _premultipliedAlpha;
-	spSkeleton* _skeleton;
 	float _timeScale;
 	bool _debugSlots;
 	bool _debugBones;

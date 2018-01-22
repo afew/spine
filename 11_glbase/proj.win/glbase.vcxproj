@@ -90,6 +90,7 @@
     <ClCompile Include="..\classes\android_util.cpp" />
     <ClCompile Include="..\classes\App.cpp" />
     <ClCompile Include="..\classes\app_util.cpp" />
+    <ClCompile Include="..\classes\LcxSpineEx.cpp" />
     <ClCompile Include="..\classes\Sphere.cpp" />
     <ClCompile Include="..\classes\Gui.cpp" />
     <ClCompile Include="..\classes\ogl_util.cpp" />
@@ -102,6 +103,7 @@
     <ClCompile Include="glbaseWin32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\classes\LcxSpineEx.h" />
     <ClInclude Include="..\classes\Sphere.h" />
     <ClInclude Include="..\classes\Gui.h" />
     <ClInclude Include="..\classes\LcxSpine.h" />

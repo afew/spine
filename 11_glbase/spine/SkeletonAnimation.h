@@ -98,7 +98,8 @@ public:
 	virtual void initialize () override;
 
 protected:
-	spAnimationState* _state;
+	spAnimationStateData* m_animationStateData{};
+	spAnimationState*     m_animationState{};
 
 	bool _ownsAnimationStateData;
 

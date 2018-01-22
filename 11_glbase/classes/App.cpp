@@ -17,6 +17,7 @@
 #include "App.h"
 #include "Sphere.h"
 #include "LcxSpine.h"
+#include "LcxSpineEx.h"
 
 
 

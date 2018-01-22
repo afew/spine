@@ -14,7 +14,7 @@
 #endif
 
 #include "app_util.h"
-#define SPINE_SHORT_NAMES
+
 #include "SkeletonAnimation.h"
 #include "spine-cocos2dx.h"
 using namespace spine;
@@ -157,13 +157,20 @@ int	LcxSpine::Render()
 
 	spineSkeleton->draw([this, &us_tc, &tm_WVP](const spine::SpineMeshArgs& args)
 	{
-		GLTexture* texture      = (GLTexture*)std::get<SPINEMESHARGS_TEXTURE>(args);
-		const float* pos        = std::get<SPINEMESHARGS_POSITION>(args);
-		const float* dif        = std::get<SPINEMESHARGS_DIFFUSE >(args);
-		const float* tex        = std::get<SPINEMESHARGS_TEXCOORD>(args);
-		int stride              = std::get<SPINEMESHARGS_STRIDE  >(args);
-		const USHORT* idx_buf   = std::get<SPINEMESHARGS_IDX_BUF >(args);
-		int   idx_num           = std::get<SPINEMESHARGS_IDX_NUM >(args);
+		//GLTexture* texture      = (GLTexture*)std::get<SPINEMESHARGS_TEXTURE>(args);
+		//const float* pos        = std::get<SPINEMESHARGS_POSITION>(args);
+		//const float* dif        = std::get<SPINEMESHARGS_DIFFUSE >(args);
+		//const float* tex        = std::get<SPINEMESHARGS_TEXCOORD>(args);
+		//int stride              = std::get<SPINEMESHARGS_STRIDE  >(args);
+		//const USHORT* idx_buf   = std::get<SPINEMESHARGS_IDX_BUF >(args);
+		//int   idx_num           = std::get<SPINEMESHARGS_IDX_NUM >(args);
+		GLTexture* texture      = (GLTexture*)args.texture;
+		const float* pos        = args.pos;
+		const float* dif        = args.dif;
+		const float* tex        = args.tex;
+		int stride              = args.stride;
+		const USHORT* idx_buf   = args.idx_buf;
+		int   idx_num           = args.idx_num;
 
 		spine_prg->BeginProgram();
 		spine_prg->Matrix16("um_WVP", (float*)&tm_WVP);
