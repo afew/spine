@@ -59,11 +59,15 @@ public:
 	void setAnimationStateData (spAnimationStateData* stateData);
 	void setMix (const std::string& fromAnimation, const std::string& toAnimation, float duration);
 
+	spTrackEntry* setAnimation (int trackIndex, int animation_index, bool loop);
 	spTrackEntry* setAnimation (int trackIndex, const std::string& name, bool loop);
 	spTrackEntry* addAnimation (int trackIndex, const std::string& name, bool loop, float delay = 0);
 	spTrackEntry* setEmptyAnimation (int trackIndex, float mixDuration);
 	void setEmptyAnimations (float mixDuration);
 	spTrackEntry* addEmptyAnimation (int trackIndex, float mixDuration, float delay = 0);
+
+	spAnimation* getAnimation(int animation_index) const;
+	spAnimation* getAnimation(const std::string& name) const;
 	spAnimation* findAnimation(const std::string& name) const;
 	spTrackEntry* getCurrent (int trackIndex = 0);
 	void clearTracks ();

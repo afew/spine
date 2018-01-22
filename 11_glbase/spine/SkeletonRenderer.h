@@ -47,8 +47,8 @@ typedef std::tuple
 <
 	  void*				// 0: texture
 	, float*			// 1: pos
-	, float*			// 2: texcoord
-	, float*			// 3: color
+	, float*			// 2: color
+	, float*			// 3: texcoord
 	, int				// 4: stride
 	, int				// 5: vertex count
 	, unsigned short*	// 6: idx_buf
@@ -59,8 +59,8 @@ enum
 {
 	SPINEMESHARGS_TEXTURE = 0,
 	SPINEMESHARGS_POSITION,
-	SPINEMESHARGS_TEXCOORD,
 	SPINEMESHARGS_DIFFUSE ,
+	SPINEMESHARGS_TEXCOORD,
 	SPINEMESHARGS_STRIDE  ,
 	SPINEMESHARGS_VTX_NUM ,
 	SPINEMESHARGS_IDX_BUF ,
@@ -123,8 +123,6 @@ public:
 	bool setAttachment (const std::string& slotName, const char* attachmentName);
 
     // --- BlendProtocol
-    virtual void setBlendFunc (const BlendFunc& blendFunc);
-    virtual const BlendFunc& getBlendFunc () const;
     virtual void setOpacityModifyRGB (bool value);
     virtual bool isOpacityModifyRGB () const;
 
@@ -152,21 +150,19 @@ protected:
 	bool _ownsSkeletonData;
 	spAtlas* _atlas;
 	spAttachmentLoader* _attachmentLoader;
-	BlendFunc _blendFunc {0x0302, 0x0303};
-
 	bool _premultipliedAlpha;
 	spSkeleton* _skeleton;
 	float _timeScale;
 	bool _debugSlots;
 	bool _debugBones;
 
-	int      _vtx_num{};
-	LCXVEC2* _vtx_pos{};		// position
-	COLORF4* _vtx_dif{};		// position
-	
-	COLORF4	m_color {COLORF4::WHITE};
-	LCXVEC3		m_pos{0,0,0};
-	LCXVEC3		m_scl{1,1,1};
+	int      m_vtx_num{};
+	LCXVEC2* m_vtx_pos{};		// position
+	COLORF4* m_vtx_dif{};		// position
+
+	COLORF4  m_color {COLORF4::WHITE};
+	LCXVEC3  m_pos   {LCXVEC3::ZERO};
+	LCXVEC3  m_scl   {LCXVEC3::ONE};
 public:
 	void color(const COLORF4& c) { m_color = c; }
 	const COLORF4& color() { return m_color; }

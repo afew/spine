@@ -71,12 +71,6 @@ static GLuint filter (spAtlasFilter filter) {
 }
 
 void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
-	//GLTexture* texture = GLTexture::createFromFile(path, GLTexture::TYPE_2D, filter(self->minFilter), filter(self->magFilter), wrap(self->uWrap), wrap(self->vWrap));
-	//if(!texture)
-	//	return;
-	//self->rendererObject = texture;
-	//self->width  = texture->ImageW();
-	//self->height = texture->ImageH();
 	if(!_func_createTexture)
 		return;
 	int width = 0;
@@ -90,11 +84,6 @@ void _spAtlasPage_createTexture (spAtlasPage* self, const char* path) {
 }
 
 void _spAtlasPage_disposeTexture (spAtlasPage* self) {
-	//GLTexture* texture = (GLTexture*)(self->rendererObject);
-	//if(texture) {
-	//	delete texture;
-	//	self->rendererObject = NULL;
-	//}
 	if(!_func_releaseTexture)
 		return;
 	_func_releaseTexture(self->rendererObject);
@@ -102,12 +91,12 @@ void _spAtlasPage_disposeTexture (spAtlasPage* self) {
 }
 
 char* _spUtil_readFile (const char* path, int* length) {
-	char* ret_buf = NULL;
-	int   ret_len = 0;
-	int   ret = FileData::getFileDataWithMalloc(&ret_buf, &ret_len, path);
-	if(0>ret)
+	if(!_func_readFile)
 		return NULL;
-
+	int   ret_len = 0;
+	char* ret_buf = _func_readFile(&ret_len, path);
+	if(!ret_buf)
+		return NULL;
 	*length = ret_len;
 	return ret_buf;
 }

@@ -1,5 +1,6 @@
-﻿#pragma once
-
+﻿#ifdef WIN32
+  #pragma once
+#endif
 #ifndef _LcxSpine_H_
 #define _LcxSpine_H_
 
@@ -11,6 +12,8 @@ class LcxSpine : public RenderObject
 {
 protected:
 	void* m_spineSkeleton {};
+	void* m_currentTrack  {};
+	LC_RECT	m_clipping {200,20,900, 560};
 
 public:
 	LcxSpine();

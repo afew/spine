@@ -50,12 +50,12 @@ void _Cocos2dAttachmentLoader_configureAttachment (spAttachmentLoader* loader, s
 		spRegionAttachment* regionAttachment = SUB_CAST(spRegionAttachment, attachment);
 		spAtlasRegion* region = (spAtlasRegion*)regionAttachment->rendererObject;
 		AttachmentVertices* attachmentVertices = new AttachmentVertices(region->page->rendererObject, 4, quadTriangles, 6);
+
 		//VTX_PD2T* vertices = attachmentVertices->_mesh.vtx;
 		//for (int i = 0, ii = 0; i < 4; ++i, ii += 2) {
 		//	vertices[i].tex.x = regionAttachment->uvs[ii + 0];
 		//	vertices[i].tex.y = regionAttachment->uvs[ii + 1];
 		//}
-
 		attachmentVertices->_vtx_tex = (float*)regionAttachment->uvs;
 		regionAttachment->rendererObject = attachmentVertices;
 		break;
@@ -71,7 +71,6 @@ void _Cocos2dAttachmentLoader_configureAttachment (spAttachmentLoader* loader, s
 		//	vertices[i].tex.x = meshAttachment->uvs[ii + 0];
 		//	vertices[i].tex.y = meshAttachment->uvs[ii + 1];
 		//}
-
 		attachmentVertices->_vtx_tex = (float*)meshAttachment->uvs;
 		meshAttachment->rendererObject = attachmentVertices;
 		break;

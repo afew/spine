@@ -97,7 +97,7 @@ int app_destroy()
 		delete g_app;
 		g_app = NULL;
 	}
-	return 0;
+	return LC_OK;
 }
 
 int app_update()
@@ -141,21 +141,21 @@ int App::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 
 	m_cam3d = GLCamera::create(GLCamera::GLCAM_3D, "3d world");
 	if(!m_cam3d)
-		return -1;
+		return LC_EFAIL;
 	m_cam_gui = GLCamera::create(GLCamera::GLCAM_GUI, "gui");
 	if(!m_cam_gui)
-		return -1;
+		return LC_EFAIL;
 
 	m_button = Gui::createButton("media/texture/button.tga", "media/texture/white.tga");
 	if(!m_button)
-		return -1;
+		return LC_EFAIL;
 
 	int vpt[8]={0};
 	glGetIntegerv(GL_VIEWPORT, vpt);
 	m_fbo = GLFBO::create(vpt[2], vpt[3]);
 
-	m_spine = LcxSpine::create("media/spine/spineboy.json", "media/spine/spineboy.atlas");
-	return 0;
+	m_spine = LcxSpine::create("media/spine/pocahontas.skel", "media/spine/pocahontas.atlas");
+	return LC_OK;
 }
 
 int App::Destroy()
@@ -167,7 +167,7 @@ int App::Destroy()
 
 	GLCamera::remove(&m_cam3d);
 	GLCamera::remove(&m_cam_gui);
-	return 0;
+	return LC_OK;
 }
 
 int App::FrameMove()
@@ -180,7 +180,7 @@ int App::FrameMove()
 	m_button->FrameMove();
 	m_spine->FrameMove();
 
-	return 0;
+	return LC_OK;
 }
 
 int App::Render()
@@ -208,7 +208,7 @@ int App::Render()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		m_fbo->draw();
 	}
-	return 0;
+	return LC_OK;
 }
 
 

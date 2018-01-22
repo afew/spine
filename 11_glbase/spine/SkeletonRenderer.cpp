@@ -43,8 +43,6 @@
 using std::min;
 using std::max;
 
-extern void spUtil_drawPrimitive(const void* _texture, const MESH_BUF2D* mesh);
-
 namespace spine {
 
 SkeletonRenderer* SkeletonRenderer::createWithData (spSkeletonData* skeletonData, bool ownsSkeletonData) {
@@ -67,9 +65,9 @@ void SkeletonRenderer::initialize () {
 	setOpacityModifyRGB(true);
 
 	AttachmentVertices* attachmentVertices{};
-	int max_vertex_count = 4;	// 6 verticies * 16 rectangle
+	int max_vertex_count = 8;	// 6 verticies * 16 rectangle
 
-	_vtx_num = 0;
+	m_vtx_num = 0;
 	for (int i = 0, n = _skeleton->slotsCount; i < n; ++i) {
 		spSlot* slot = _skeleton->drawOrder[i];
 		if (!slot->attachment) continue;
@@ -78,7 +76,6 @@ void SkeletonRenderer::initialize () {
 		case SP_ATTACHMENT_REGION: {
 			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
 			attachmentVertices = getAttachmentVertices(attachment);
-
 			break;
 		}
 		case SP_ATTACHMENT_MESH: {
@@ -90,13 +87,13 @@ void SkeletonRenderer::initialize () {
 			continue;
 		}
 
-		_vtx_num += attachmentVertices->_vtx_num;
+		m_vtx_num += attachmentVertices->_vtx_num;
 		if(max_vertex_count<attachmentVertices->_vtx_num)
 			max_vertex_count = attachmentVertices->_vtx_num;
 	}
 
-	_vtx_pos = new LCXVEC2[_vtx_num]{};
-	_vtx_dif = new COLORF4[_vtx_num]{};
+	m_vtx_pos = new LCXVEC2[m_vtx_num]{};
+	m_vtx_dif = new COLORF4[m_vtx_num]{};
 }
 
 void SkeletonRenderer::setSkeletonData (spSkeletonData *skeletonData, bool ownsSkeletonData) {
@@ -128,8 +125,8 @@ SkeletonRenderer::~SkeletonRenderer () {
 	spSkeleton_dispose(_skeleton);
 	if (_atlas) spAtlas_dispose(_atlas);
 	if (_attachmentLoader) spAttachmentLoader_dispose(_attachmentLoader);
-	if(_vtx_pos) delete [] _vtx_pos;
-	if(_vtx_dif) delete [] _vtx_dif;
+	if(m_vtx_pos) delete [] m_vtx_pos;
+	if(m_vtx_dif) delete [] m_vtx_dif;
 }
 
 void SkeletonRenderer::initWithData (spSkeletonData* skeletonData, bool ownsSkeletonData) {
@@ -242,7 +239,7 @@ void SkeletonRenderer::draw (const SpineRender& render) {
 	_skeleton->b = m_color.b;
 	_skeleton->a = m_color.a;
 
-    COLORF4 color;
+	COLORF4 color;
 	AttachmentVertices* attachmentVertices = nullptr;
 	for (int i = 0, n = _skeleton->slotsCount; i < n; ++i) {
 		spSlot* slot = _skeleton->drawOrder[i];
@@ -251,22 +248,16 @@ void SkeletonRenderer::draw (const SpineRender& render) {
 		switch (slot->attachment->type) {
 		case SP_ATTACHMENT_REGION: {
 			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
-			spRegionAttachment_computeWorldVertices(attachment, slot->bone, (float*)_vtx_pos);
+			spRegionAttachment_computeWorldVertices(attachment, slot->bone, (float*)&m_vtx_pos[0]);
 			attachmentVertices = getAttachmentVertices(attachment);
-            color.r = attachment->r;
-			color.g = attachment->g;
-			color.b = attachment->b;
-			color.a = attachment->a;
+			color = COLORF4((const float*)&attachment->r);
 			break;
 		}
 		case SP_ATTACHMENT_MESH: {
 			spMeshAttachment* attachment = (spMeshAttachment*)slot->attachment;
-			spMeshAttachment_computeWorldVertices(attachment, slot, (float*)_vtx_pos);
+			spMeshAttachment_computeWorldVertices(attachment, slot, (float*)&m_vtx_pos[0]);
 			attachmentVertices = getAttachmentVertices(attachment);
-            color.r = attachment->r;
-            color.g = attachment->g;
-            color.b = attachment->b;
-            color.a = attachment->a;
+			color = COLORF4((const float*)&attachment->r);
 			break;
 		}
 		default:
@@ -279,41 +270,40 @@ void SkeletonRenderer::draw (const SpineRender& render) {
 		color.g *= _skeleton->g * slot->g * multiplier;
 		color.b *= _skeleton->b * slot->b * multiplier;
 
-		//for (int v = 0, w = 0, vn = attachmentVertices->_mesh.n_vtx; v < vn; ++v, w += 2) {
-		//	VTX_PD2T& vertex = attachmentVertices->_mesh.vtx[v];
-		//	vertex.pos.x = _worldVertices[w + 0];
-		//	vertex.pos.y = _worldVertices[w + 1];
-		//	vertex.dif = color;
-		//}
-
-		BlendFunc blendFunc;
-		switch (slot->data->blendMode) {
-		case SP_BLEND_MODE_ADDITIVE:
-			blendFunc.src = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
-			blendFunc.dst = GL_ONE;
-			break;
-		case SP_BLEND_MODE_MULTIPLY:
-			blendFunc.src = GL_DST_COLOR;
-			blendFunc.dst = GL_ONE_MINUS_SRC_ALPHA;
-			break;
-		case SP_BLEND_MODE_SCREEN:
-			blendFunc.src = GL_ONE;
-			blendFunc.dst = GL_ONE_MINUS_SRC_COLOR;
-			break;
-		default:
-			blendFunc.src = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
-			blendFunc.dst = GL_ONE_MINUS_SRC_ALPHA;
+		for (int v = 0, vn = attachmentVertices->_vtx_num; v < vn; ++v) {
+			m_vtx_dif[v] = color;
 		}
 
-		glBlendFunc(blendFunc.src, blendFunc.dst);
+		int blend_src = 0;
+		int blend_dst = 0;
+		switch (slot->data->blendMode) {
+		case SP_BLEND_MODE_ADDITIVE:
+			blend_src = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
+			blend_dst = GL_ONE;
+			break;
+		case SP_BLEND_MODE_MULTIPLY:
+			blend_src = GL_DST_COLOR;
+			blend_dst = GL_ONE_MINUS_SRC_ALPHA;
+			break;
+		case SP_BLEND_MODE_SCREEN:
+			blend_src = GL_ONE;
+			blend_dst = GL_ONE_MINUS_SRC_COLOR;
+			break;
+		default:
+			blend_src = _premultipliedAlpha ? GL_ONE : GL_SRC_ALPHA;
+			blend_dst = GL_ONE_MINUS_SRC_ALPHA;
+		}
+		glBlendFunc(blend_src, blend_dst);
 
 		void* texture   = attachmentVertices->_texture;
-		float* pos      = (float*)_vtx_pos;
+		float* pos      = (float*)&m_vtx_pos[0];
+		float* dif      = (float*)&m_vtx_dif[0];
 		float* tex      = attachmentVertices->_vtx_tex;
 		int    stride   = 0;
+		int     vtx_num = attachmentVertices->_vtx_num;
 		USHORT* idx_buf = attachmentVertices->_idx_buf;
 		int     idx_num = attachmentVertices->_idx_num;
-		render(SpineMeshArgs{texture, pos, tex, (float*)&color, stride, 0, idx_buf, idx_num});
+		render(SpineMeshArgs{texture, pos, dif, tex, stride, vtx_num, idx_buf, idx_num});
 	}
 
 	glBlendFunc(stored_blend_src, stored_blend_dst);
@@ -386,16 +376,16 @@ LCXRECT SkeletonRenderer::getBoundingBox () const {
 		int verticesCount;
 		if (slot->attachment->type == SP_ATTACHMENT_REGION) {
 			spRegionAttachment* attachment = (spRegionAttachment*)slot->attachment;
-			spRegionAttachment_computeWorldVertices(attachment, slot->bone, (float*)_vtx_pos);
-			verticesCount = 8;
+			spRegionAttachment_computeWorldVertices(attachment, slot->bone, (float*)&m_vtx_pos[0]);
+			verticesCount = 8/2;
 		} else if (slot->attachment->type == SP_ATTACHMENT_MESH) {
 			spMeshAttachment* mesh = (spMeshAttachment*)slot->attachment;
-			spMeshAttachment_computeWorldVertices(mesh, slot, (float*)_vtx_pos);
-			verticesCount = mesh->super.worldVerticesLength;
+			spMeshAttachment_computeWorldVertices(mesh, slot, (float*)&m_vtx_pos[0]);
+			verticesCount = mesh->super.worldVerticesLength/2;
 		} else
 			continue;
-		for (int ii = 0; ii < verticesCount/2; ++ii) {
-			float x = _vtx_pos[ii].x * scaleX, y = _vtx_pos[ii].y * scaleY;
+		for (int ii = 0; ii < verticesCount; ++ii) {
+			float x = m_vtx_pos[ii].x * scaleX, y = m_vtx_pos[ii].y * scaleY;
 			minX = min(minX, x);
 			minY = min(minY, y);
 			maxX = max(maxX, x);
@@ -471,32 +461,6 @@ void SkeletonRenderer::setDebugBonesEnabled (bool enabled) {
 }
 bool SkeletonRenderer::getDebugBonesEnabled () const {
 	return _debugBones;
-}
-
-//void SkeletonRenderer::onEnter () {
-//#if CC_ENABLE_SCRIPT_BINDING
-//	if (_scriptType == kScriptTypeJavascript && ScriptEngineManager::sendNodeEventToJSExtended(this, kNodeOnEnter)) return;
-//#endif
-//	Node::onEnter();
-//	scheduleUpdate();
-//}
-//
-//void SkeletonRenderer::onExit () {
-//#if CC_ENABLE_SCRIPT_BINDING
-//	if (_scriptType == kScriptTypeJavascript && ScriptEngineManager::sendNodeEventToJSExtended(this, kNodeOnExit)) return;
-//#endif
-//	Node::onExit();
-//	unscheduleUpdate();
-//}
-
-// --- CCBlendProtocol
-
-const BlendFunc& SkeletonRenderer::getBlendFunc () const {
-	return _blendFunc;
-}
-
-void SkeletonRenderer::setBlendFunc (const BlendFunc &blendFunc) {
-	_blendFunc = blendFunc;
 }
 
 void SkeletonRenderer::setOpacityModifyRGB (bool value) {

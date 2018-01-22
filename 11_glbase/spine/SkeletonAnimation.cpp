@@ -148,6 +148,13 @@ void SkeletonAnimation::setMix (const std::string& fromAnimation, const std::str
 	spAnimationStateData_setMixByName(_state->data, fromAnimation.c_str(), toAnimation.c_str(), duration);
 }
 
+spTrackEntry* SkeletonAnimation::setAnimation (int trackIndex, int animation_index, bool loop) {
+	spAnimation* animation = this->getAnimation(animation_index);
+	if(!animation)
+		return NULL;
+	this->setAnimation(trackIndex, std::string(animation->name), loop);
+}
+
 spTrackEntry* SkeletonAnimation::setAnimation (int trackIndex, const std::string& name, bool loop) {
 	spAnimation* animation = spSkeletonData_findAnimation(_skeleton->data, name.c_str());
 	if (!animation) {
@@ -176,6 +183,17 @@ void SkeletonAnimation::setEmptyAnimations (float mixDuration) {
 
 spTrackEntry* SkeletonAnimation::addEmptyAnimation (int trackIndex, float mixDuration, float delay) {
 	return spAnimationState_addEmptyAnimation(_state, trackIndex, mixDuration, delay);
+}
+
+spAnimation* SkeletonAnimation::getAnimation(int animation_index) const {
+	if(!_skeleton || !_skeleton->data || 0>animation_index || animation_index > _skeleton->data->animationsCount)
+		return NULL;
+	spAnimation* animation = _skeleton->data->animations[animation_index];
+	return animation;
+}
+
+spAnimation* SkeletonAnimation::getAnimation(const std::string& name) const {
+	return this->findAnimation(name);
 }
 
 spAnimation* SkeletonAnimation::findAnimation(const std::string& name) const {
