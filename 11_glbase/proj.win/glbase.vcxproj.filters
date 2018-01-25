@@ -53,9 +53,6 @@
     <ClInclude Include="..\classes\LcxSpine.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="..\classes\LcxSpineEx.h">
-      <Filter>classes</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\_pvr_sdk\Windows\Resources\shared.rc">
@@ -98,9 +95,6 @@
       <Filter>spine</Filter>
     </ClCompile>
     <ClCompile Include="..\classes\LcxSpine.cpp">
-      <Filter>classes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\classes\LcxSpineEx.cpp">
       <Filter>classes</Filter>
     </ClCompile>
   </ItemGroup>

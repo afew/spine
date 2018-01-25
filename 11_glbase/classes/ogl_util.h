@@ -22,10 +22,16 @@ bool checkGLError(const char* functionLastCalled);
 struct RenderObject
 {
 	virtual ~RenderObject(){};
+	virtual RenderObject* clone () { return NULL; }
+
 	virtual int Init      (CPVOID =NULL, CPVOID =NULL, CPVOID =NULL, CPVOID =NULL) =0;
 	virtual int Destroy   () =0;
 	virtual int FrameMove () =0;
 	virtual int Render    () =0;
+
+	virtual void Scaling (const LCXVEC3&) {};
+	virtual void Position(const LCXVEC3&) {};
+	virtual void Rotation(const float radian) {};
 };
 
 class GLTexture

@@ -17,8 +17,6 @@
 #include "App.h"
 #include "Sphere.h"
 #include "LcxSpine.h"
-#include "LcxSpineEx.h"
-
 
 
 static std::mutex g_mutex;
@@ -124,7 +122,6 @@ App* App::getInstance()
 
 App::App()
 	: m_fbo  {}
-	, m_spine {}
 	, m_button{}
 	, m_cam3d{}
 	, m_cam_gui{}
@@ -155,16 +152,31 @@ int App::Init(CPVOID, CPVOID, CPVOID, CPVOID)
 	glGetIntegerv(GL_VIEWPORT, vpt);
 	m_fbo = GLFBO::create(vpt[2], vpt[3]);
 
-	m_spine = LcxSpine::create("media/spine/pocahontas.skel", "media/spine/pocahontas.atlas");
+	m_spine0 = LcxSpine::create("media/spine/spineboy.skel", "media/spine/spineboy.atlas");
+	if(m_spine0)
+	{
+		m_spine0->Position(LCXVEC3(-200,-100, 0));
+		m_spine0->Scaling (LCXVEC3(0.3F, 0.3F, 1.0F));
+	}
+
+	if(m_spine0)
+	{
+		m_spine1 = m_spine0->clone();
+		if(m_spine1)
+		{
+			m_spine1->Position(LCXVEC3(200, -100, 0));
+			m_spine1->Scaling(LCXVEC3(0.3F, 0.3F, 1.0F));
+		}
+	}
 	return LC_OK;
 }
 
 int App::Destroy()
 {
 	SAFE_DELETE(m_fbo  );
-	SAFE_DELETE(m_spine );
+	SAFE_DELETE(m_spine1 );
+	SAFE_DELETE(m_spine0 );
 	SAFE_DELETE(m_button);
-	SAFE_DELETE(m_spine);
 
 	GLCamera::remove(&m_cam3d);
 	GLCamera::remove(&m_cam_gui);
@@ -179,7 +191,10 @@ int App::FrameMove()
 	}
 	m_cam3d->FrameMove();
 	m_button->FrameMove();
-	m_spine->FrameMove();
+	if(m_spine0)
+		m_spine0->FrameMove();
+	if(m_spine1)
+		m_spine1->FrameMove();
 
 	return LC_OK;
 }
@@ -194,7 +209,11 @@ int App::Render()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_spine->Render();
+	if(m_spine0)
+		m_spine0->Render();
+
+	if(m_spine1)
+		m_spine1->Render();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	m_button->Render();
